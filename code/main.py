@@ -9,13 +9,6 @@ from model import Model
 data_dir = '../../../data/' # Change this so it refers to where you have the data
 
 
-#with open(data_dir + 'train.csv', newline='') as f:
-    #train_data = list(csv.reader(f))
-
-#with open(data_dir + 'test.csv', newline='') as f:
-    #test_data = list(csv.reader(f))
-
-
 def train(model, train_labels, train_images):
 
     amt_to_train = train_images.shape[0] #Amt of images we're training over
