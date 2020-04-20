@@ -50,26 +50,35 @@ def main():
     main_dir = os.path.dirname(__file__)
 
     train_path = os.path.normpath(main_dir + data_dir + 'train.csv')
-    test_path = os.path.normpath(main_dir + data_dir + 'test.csv')
+    #test_path = os.path.normpath(main_dir + data_dir + 'test.csv')
 
     train_file = open(train_path)
-    test_file = open(test_path)
+    #test_file = open(test_path)
 
     train_data = pd.read_csv(train_file)
-    test_data = pd.read_csv(test_file)
+    #test_data = pd.read_csv(test_file)
     
-    train_images = np.array([np.array([np.float64(x) for x in img.split(' ')]).reshape(48,48) 
+    images = np.array([np.array([np.float64(x) for x in img.split(' ')]).reshape(48,48) 
                         for img in train_data['pixels'].values])
+    total_num = images.shape[0]
+    num_training = int(total_num * hp.percent_training)
+
+    train_images = images[:num_training]
     print("got training images")
     #print(train_images.shape)
-    train_labels = np.array([np.float64(x) for x in train_data['emotion'].values])
-    print("got training labels")
-    #print(train_labels.shape)
-    test_images = np.array([np.array([np.float64(x) for x in img.split(' ')]).reshape(48,48) 
-                        for img in test_data['pixels'].values])
+    test_images = images[num_training:]
     print("got testing images")
     #print(test_images.shape)
-    #test_labels = np.array([float(x) for x in test_data['emotion'].values])
+
+    labels = np.array([np.float64(x) for x in train_data['emotion'].values])
+
+    train_labels = labels[:num_training]
+    print("got training labels")
+    #print(train_labels.shape)
+    test_labels = labels[num_training:]
+    print("got testing labels")
+    #print(train_labels.shape)
+
 
     model = Model()
     # Putting input shape here instead
