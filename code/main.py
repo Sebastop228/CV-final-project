@@ -1,7 +1,19 @@
 import tensorflow as tf 
 import numpy as np
 import hyperparameters as hp
+import pandas as pd  # You're going to need to install this
+import csv
+import os
 from model import Model
+
+data_dir = '../../../data/' # Change this so it refers to where you have the data
+
+
+#with open(data_dir + 'train.csv', newline='') as f:
+    #train_data = list(csv.reader(f))
+
+#with open(data_dir + 'test.csv', newline='') as f:
+    #test_data = list(csv.reader(f))
 
 
 def train(model, train_labels, train_images):
@@ -37,10 +49,24 @@ def test(model, test_labels, test_images):
 
 
 def main():
-    # Find how to get files
-    train_images = []
-    train_labels = []
-    test_images = []
+
+    main_dir = os.path.dirname(__file__)
+
+    train_path = os.path.normpath(main_dir + data_dir + 'train.csv')
+    test_path = os.path.normpath(main_dir + data_dir + 'test.csv')
+
+    train_file = open(train_path)
+    test_file = open(test_path)
+
+    train_data = pd.read_csv(train_file)
+    test_data = pd.read_csv(test_file)
+    
+    train_images = train_data['pixels']
+    print("got training images")
+    train_labels = train_data['emotion']
+    print("got training labels")
+    test_images = test_data['pixels']
+    print("got testing images")
     test_labels = []
 
     model = Model()
