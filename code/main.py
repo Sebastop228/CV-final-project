@@ -44,6 +44,7 @@ def test(model, test_labels, test_images):
 def main():
 
     main_dir = os.path.dirname(__file__)
+    #print(main_dir)
 
     train_path = os.path.normpath(main_dir + data_dir + 'train.csv')
     test_path = os.path.normpath(main_dir + data_dir + 'test.csv')
@@ -54,11 +55,11 @@ def main():
     train_data = pd.read_csv(train_file)
     test_data = pd.read_csv(test_file)
     
-    train_images = train_data['pixels']
+    train_images = train_data['pixels'].to_numpy()
     print("got training images")
-    train_labels = train_data['emotion']
+    train_labels = train_data['emotion'].to_numpy()
     print("got training labels")
-    test_images = test_data['pixels']
+    test_images = test_data['pixels'].to_numpy()
     print("got testing images")
     test_labels = []
 

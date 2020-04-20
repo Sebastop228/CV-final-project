@@ -22,7 +22,7 @@ class Model(tf.keras.Model):
         self.architecture.add(tf.keras.layers.Conv2D(filters = 64, kernel_size = 3, strides = (1,1), input_shape = (48,48,1), activation = "relu", padding = "same")) #padding and kernel initializer? Stddev for kernel initializer?
         
         self.architecture.add(tf.keras.layers.Conv2D(filters = 64, kernel_size = 3, strides = (1,1), activation = "relu"))
-        self.architecture.add(tf.keras.layers.Maxpool2D(pool_size = (2,2), strides = (2,2)))
+        self.architecture.add(tf.keras.layers.MaxPool2D(pool_size = (2,2), strides = (2,2)))
         self.architecture.add(tf.keras.layers.Dropout(rate = 0.25))
 
         self.architecture.add(tf.keras.layers.Conv2D(filters = 128, kernel_size = 3, strides = (1,1), activation = "relu", padding = "same"))
@@ -31,7 +31,7 @@ class Model(tf.keras.Model):
         self.architecture.add(tf.keras.layers.Conv2D(filters = 256, kernel_size = 3, strides = (1,1), activation = "relu", padding = "same"))
         self.architecture.add(tf.keras.layers.Conv2D(filters = 256, kernel_size = 3, strides = (1,1), activation = "relu"))
 
-        self.architecture.add(tf.keras.layers.Maxpool2D(pool_size = (2,2), strides = (2,2))) 
+        self.architecture.add(tf.keras.layers.MaxPool2D(pool_size = (2,2), strides = (2,2))) 
         self.architecture.add(tf.keras.layers.Dropout(rate = 0.25))
 
         self.architecture.add(tf.keras.layers.Flatten())
@@ -55,7 +55,9 @@ class Model(tf.keras.Model):
 
     def call(self, inputs):
 
-        return self.sequence(inputs)
+        print(inputs.shape)
+
+        return self.architecture(inputs)
 
 
 
