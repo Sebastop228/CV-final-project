@@ -19,6 +19,8 @@ def train(model, train_labels, train_images):
         batch_images = train_images[i:min(i+batch_size, amt_to_train)]
         batch_labels = train_labels[i:min(i+batch_size, amt_to_train)]
         with tf.GradientTape() as tape:
+            # Had to expand dimmensions so things would work
+            batch_images = np.expand_dims(batch_images, axis=3)
             probs = model.call(batch_images)
             loss = model.loss_fn(batch_labels, probs)
         gradients = tape.gradient(loss, model.trainable_variables)
@@ -33,6 +35,8 @@ def test(model, test_labels, test_images):
     for i in range(0, amt_to_test, batch_size):
         batch_images = test_images[i:min(i+batch_size, amt_to_test)]
         batch_labels = test_labels[i:min(i+batch_size, amt_to_test)]
+        # Also had to expand dimmensions here
+        batch_labels = np.expand_dims(batch_images, axis=3)
         probs = model.call(batch_images)
 
         #figure out how we want to calculate accuracy - accuracy function in model?? Would pass it labels and logits
@@ -44,7 +48,6 @@ def test(model, test_labels, test_images):
 def main():
 
     main_dir = os.path.dirname(__file__)
-    #print(main_dir)
 
     train_path = os.path.normpath(main_dir + data_dir + 'train.csv')
     test_path = os.path.normpath(main_dir + data_dir + 'test.csv')
@@ -55,15 +58,22 @@ def main():
     train_data = pd.read_csv(train_file)
     test_data = pd.read_csv(test_file)
     
-    train_images = train_data['pixels'].to_numpy()
+    train_images = np.array([np.array([np.float64(x) for x in img.split(' ')]).reshape(48,48) 
+                        for img in train_data['pixels'].values])
     print("got training images")
-    train_labels = train_data['emotion'].to_numpy()
+    #print(train_images.shape)
+    train_labels = np.array([np.float64(x) for x in train_data['emotion'].values])
     print("got training labels")
-    test_images = test_data['pixels'].to_numpy()
+    #print(train_labels.shape)
+    test_images = np.array([np.array([np.float64(x) for x in img.split(' ')]).reshape(48,48) 
+                        for img in test_data['pixels'].values])
     print("got testing images")
-    test_labels = []
+    #print(test_images.shape)
+    #test_labels = np.array([float(x) for x in test_data['emotion'].values])
 
     model = Model()
+    # Putting input shape here instead
+    model(tf.keras.Input(shape=(48, 48, 1)))
 
     for i in range(hp.num_epochs):
         train(model, train_labels, train_images)

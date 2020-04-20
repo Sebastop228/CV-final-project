@@ -9,6 +9,9 @@ class Model(tf.keras.Model):
     def __init__(self):
         super(Model, self).__init__()
 
+        # Do we want to use float32 or float64??
+        tf.keras.backend.set_floatx('float64')
+
 
         self.optimizer = tf.keras.optimizers.Adam(learning_rate = hp.learning_rate, decay = hp.decay)
         
@@ -18,9 +21,9 @@ class Model(tf.keras.Model):
 
         self.architecture = tf.keras.Sequential()
 
-        #Not sure about input shape? This is the one discussed in the paper, but it might depend on how we do pre-processing
-        self.architecture.add(tf.keras.layers.Conv2D(filters = 64, kernel_size = 3, strides = (1,1), input_shape = (48,48,1), activation = "relu", padding = "same")) #padding and kernel initializer? Stddev for kernel initializer?
-        
+        #padding and kernel initializer? Stddev for kernel initializer?
+        self.architecture.add(tf.keras.layers.Conv2D(filters = 64, kernel_size = 3, strides = (1,1), activation = "relu", padding = "same"))
+
         self.architecture.add(tf.keras.layers.Conv2D(filters = 64, kernel_size = 3, strides = (1,1), activation = "relu"))
         self.architecture.add(tf.keras.layers.MaxPool2D(pool_size = (2,2), strides = (2,2)))
         self.architecture.add(tf.keras.layers.Dropout(rate = 0.25))
@@ -55,15 +58,16 @@ class Model(tf.keras.Model):
 
     def call(self, inputs):
 
-        print(inputs.shape)
-
         return self.architecture(inputs)
 
 
 
     def loss_fn(self, labels, predictions):
         # Which loss function to use? Paper uses Categorical crossentropy (from their github repo)
-        return tf.keras.losses.categorical_crossentropy(labels, predictions, from_logits = False)
+
+        # Added one-hot encoding in order to compute loss
+        one_hot = tf.keras.utils.to_categorical(labels)
+        return tf.keras.losses.categorical_crossentropy(one_hot, predictions, from_logits = False)
 
 
 
