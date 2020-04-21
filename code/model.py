@@ -10,7 +10,7 @@ class Model(tf.keras.Model):
         super(Model, self).__init__()
 
         # Do we want to use float32 or float64??
-        tf.keras.backend.set_floatx('float64')
+        tf.keras.backend.set_floatx('float32')
 
 
         self.optimizer = tf.keras.optimizers.Adam(learning_rate = hp.learning_rate, decay = hp.decay)

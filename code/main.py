@@ -58,7 +58,7 @@ def main():
     train_data = pd.read_csv(train_file)
     #test_data = pd.read_csv(test_file)
     
-    images = np.array([np.array([np.float64(x) for x in img.split(' ')]).reshape(48,48) 
+    images = np.array([np.array([np.float32(x) for x in img.split(' ')]).reshape(48,48) 
                         for img in train_data['pixels'].values])
     total_num = images.shape[0]
     num_training = int(total_num * hp.percent_training)
@@ -70,7 +70,7 @@ def main():
     print("got testing images")
     #print(test_images.shape)
 
-    labels = np.array([np.float64(x) for x in train_data['emotion'].values])
+    labels = np.array([np.float32(x) for x in train_data['emotion'].values])
 
     train_labels = labels[:num_training]
     print("got training labels")
