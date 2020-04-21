@@ -16,6 +16,9 @@ def train(model, train_labels, train_images):
 
     for i in range(0, amt_to_train, batch_size):
         # indexed into the arrays so that, for the last batch, i+batch_size doesn't go over the size of the array
+
+        print("TRAINING: batch ", i, "out of ", amt_to_train)
+        
         batch_images = train_images[i:min(i+batch_size, amt_to_train)]
         batch_labels = train_labels[i:min(i+batch_size, amt_to_train)]
         with tf.GradientTape() as tape:
