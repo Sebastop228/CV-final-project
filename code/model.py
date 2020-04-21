@@ -85,5 +85,5 @@ class Model(tf.keras.Model):
         highest_prediction_index = np.argmax(probs, axis = 1)
         amt_correct = np.count_nonzero(labels == highest_prediction_index)
         print("AMT CORRECT IS ", amt_correct)
-        exit(0)
+        #exit(0)
         return amt_correct
