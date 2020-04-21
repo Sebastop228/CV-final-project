@@ -5,8 +5,8 @@ import pandas as pd  # You're going to need to install this
 import csv
 import os
 from model import Model
+from preprocess import get_data
 
-data_dir = '../../../data/' # Change this so it refers to where you have the data
 
 
 def train(model, train_labels, train_images):
@@ -16,11 +16,15 @@ def train(model, train_labels, train_images):
 
     for i in range(0, amt_to_train, batch_size):
         # indexed into the arrays so that, for the last batch, i+batch_size doesn't go over the size of the array
+        # if(amt_to_train-i < batch_size):
+        #     break
+        print("TRAINING: batch ", i, "out of ", amt_to_train)
         batch_images = train_images[i:min(i+batch_size, amt_to_train)]
         batch_labels = train_labels[i:min(i+batch_size, amt_to_train)]
         with tf.GradientTape() as tape:
             # Had to expand dimmensions so things would work
             batch_images = np.expand_dims(batch_images, axis=3)
+            # print(batch_images.shape)
             probs = model.call(batch_images)
             loss = model.loss_fn(batch_labels, probs)
         gradients = tape.gradient(loss, model.trainable_variables)
@@ -33,6 +37,8 @@ def test(model, test_labels, test_images):
     batch_size = hp.batch_size
     amt_correct = 0
     for i in range(0, amt_to_test, batch_size):
+        # if(amt_to_test-i < batch_size):
+        #     break
         batch_images = test_images[i:min(i+batch_size, amt_to_test)]
         batch_labels = test_labels[i:min(i+batch_size, amt_to_test)]
         # Also had to expand dimmensions here
@@ -47,37 +53,7 @@ def test(model, test_labels, test_images):
 
 def main():
 
-    main_dir = os.path.dirname(__file__)
-
-    train_path = os.path.normpath(main_dir + data_dir + 'train.csv')
-    #test_path = os.path.normpath(main_dir + data_dir + 'test.csv')
-
-    train_file = open(train_path)
-    #test_file = open(test_path)
-
-    train_data = pd.read_csv(train_file)
-    #test_data = pd.read_csv(test_file)
-    
-    images = np.array([np.array([np.float64(x) for x in img.split(' ')]).reshape(48,48) 
-                        for img in train_data['pixels'].values])
-    total_num = images.shape[0]
-    num_training = int(total_num * hp.percent_training)
-
-    train_images = images[:num_training]
-    print("got training images")
-    #print(train_images.shape)
-    test_images = images[num_training:]
-    print("got testing images")
-    #print(test_images.shape)
-
-    labels = np.array([np.float64(x) for x in train_data['emotion'].values])
-
-    train_labels = labels[:num_training]
-    print("got training labels")
-    #print(train_labels.shape)
-    test_labels = labels[num_training:]
-    print("got testing labels")
-    #print(train_labels.shape)
+    train_images, train_labels, test_images, test_labels = get_data()
 
 
     model = Model()
