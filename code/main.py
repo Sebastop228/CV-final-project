@@ -36,7 +36,7 @@ def test(model, test_labels, test_images):
         batch_images = test_images[i:min(i+batch_size, amt_to_test)]
         batch_labels = test_labels[i:min(i+batch_size, amt_to_test)]
         # Also had to expand dimmensions here
-        batch_labels = np.expand_dims(batch_images, axis=3)
+        batch_images = np.expand_dims(batch_images, axis=3)
         probs = model.call(batch_images)
 
         #figure out how we want to calculate accuracy - accuracy function in model?? Would pass it labels and logits
