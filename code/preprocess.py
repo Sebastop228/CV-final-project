@@ -4,7 +4,7 @@ import hyperparameters as hp
 import os
 def get_data():
     
-    data_dir = '../../../../data/' # Change this so it refers to where you have the data
+    data_dir = '../../../data/' # Change this so it refers to where you have the data
 
     main_dir = os.path.abspath(__file__)
 

@@ -17,26 +17,26 @@ class Model(tf.keras.Model):
         
         #They don't use a kernel initializer in their github code, but we could play around with that.
         #Also for some reason some of the conv layers have same padding and some have valid?
-        #self.initializer = tf.keras.initializers.TruncatedNormal(stddev=hp.stddev)
+        self.initializer = tf.keras.initializers.TruncatedNormal(stddev=hp.stddev)
 
         #self.architecture = tf.keras.Sequential()
         self.architecture = []
-
+    
         #padding and kernel initializer? Stddev for kernel initializer?
         self.architecture.append(tf.keras.layers.Conv2D(filters = 64, kernel_size = 3, strides = (1,1), activation = "relu", padding = "same"))
 
         self.architecture.append(tf.keras.layers.Conv2D(filters = 64, kernel_size = 3, strides = (1,1), activation = "relu"))
         self.architecture.append(tf.keras.layers.MaxPool2D(pool_size = (2,2), strides = (2,2)))
         self.architecture.append(tf.keras.layers.Dropout(rate = 0.25))
-
+        #padding
         self.architecture.append(tf.keras.layers.Conv2D(filters = 128, kernel_size = 3, strides = (1,1), activation = "relu", padding = "same"))
         self.architecture.append(tf.keras.layers.Conv2D(filters = 128, kernel_size = 3, strides = (1,1), activation = "relu"))
-
+        #padding
         self.architecture.append(tf.keras.layers.Conv2D(filters = 256, kernel_size = 3, strides = (1,1), activation = "relu", padding = "same"))
         self.architecture.append(tf.keras.layers.Conv2D(filters = 256, kernel_size = 3, strides = (1,1), activation = "relu"))
 
         self.architecture.append(tf.keras.layers.MaxPool2D(pool_size = (2,2), strides = (2,2))) 
-        self.architecture.append(tf.keras.layers.Dropout(rate = 0.25))
+        self.architecture.append(tf.keras.layers.Dropout(rate = 0.3))
 
         self.architecture.append(tf.keras.layers.Flatten())
         #The paper mentions using an "l2 regularizer with penalty 0.001" for this next Dense layer. The docs for Dense layers has 3 types
@@ -70,7 +70,6 @@ class Model(tf.keras.Model):
         # Added one-hot encoding in order to compute loss
         one_hot = tf.keras.utils.to_categorical(labels)
         return tf.keras.losses.categorical_crossentropy(one_hot, predictions, from_logits = False)
-
 
 
     def accuracy_fn(self, labels, probs):
