@@ -118,7 +118,7 @@ def main():
             print("Saved checkpoint for epoch {}: {}".format(epoch.numpy(), save_path))
             print("accuracy {:1.2f}".format(accuracy))
 
-        print("Epoch ", i, " accuracy is ", accuracy / test_labels.shape[0])
+        print("Epoch ", i, " accuracy is ", accuracy)
 
 ARGS = parse_args()
 
