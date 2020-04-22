@@ -6,7 +6,7 @@ import csv
 import os
 from model import Model
 
-data_dir = '../../../data/' # Change this so it refers to where you have the data
+data_dir = '../../data/' # Change this so it refers to where you have the data
 
 
 def train(model, train_labels, train_images):
@@ -92,7 +92,7 @@ def main():
 
         accuracy = test(model, test_labels, test_images)
 
-        print("Epoch ", i, " accuracy is ", accuracy / test_labels.shape[0])
+        print("Epoch ", i, " accuracy is ", accuracy)
 
 if __name__ == '__main__':
     main()
