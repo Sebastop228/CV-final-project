@@ -6,7 +6,7 @@ import csv
 import os
 from model import Model
 
-data_dir = '../../../data/' # Change this so it refers to where you have the data
+data_dir = '../../data/' # Change this so it refers to where you have the data
 
 
 def train(model, train_labels, train_images):
