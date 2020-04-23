@@ -113,10 +113,9 @@ def main():
         train(model, train_labels, train_images)
         accuracy = test(model, test_labels, test_images)
         if i % 4 == 3:
-            epoch.assign(i)
+            epoch.assign(i + 1)
             save_path = manager.save()
-            print("Saved checkpoint for epoch {}: {}".format(epoch.numpy(), save_path))
-            print("accuracy {:1.2f}".format(accuracy))
+            print("Saved checkpoint for epoch {}: {}".format(i, save_path))
 
         print("Epoch ", i, " accuracy is ", accuracy)
 
