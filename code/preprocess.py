@@ -40,6 +40,6 @@ def get_data():
 
     test_labels = np.array([np.float32(x) for x in test_data[:,0]])
     print("got testing labels")
-    print(train_labels.shape)
+    print(test_labels.shape)
 
     return train_images, train_labels, test_images, test_labels
