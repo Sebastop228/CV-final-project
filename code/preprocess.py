@@ -2,8 +2,21 @@ import numpy as np
 import pandas as pd
 import hyperparameters as hp
 import os
-def get_data():
+
+
+mean = np.zeros(3,)
+stdev = np.zeros(3,)
+
+def get_data(normalize):
+
+    global mean
+    global stdev
     
+<<<<<<< Updated upstream
+=======
+    # Reading in info from CSV
+
+>>>>>>> Stashed changes
     data_dir = '../../../../data/' # Change this so it refers to where you have the data
 
     main_dir = os.path.abspath(__file__)
@@ -13,14 +26,15 @@ def get_data():
     data_file = open(path)
 
     data = pd.read_csv(data_file).values
-    #print(data.shape)
+
+    # Separating into test and training data
 
     train_data = np.array([lst for lst in data if lst[2] == 'Training'])
-    #print(train_data.shape)
 
     test_data = np.array([lst for lst in data if lst[2] == 'PublicTest'
                 or lst[2] == 'PrivateTest'])
-    #print(test_data.shape)
+
+    # Converting things to np arrays
     
     train_images = np.array([np.array([np.float32(x) for x in img.split(' ')]).reshape(48,48) 
                         for img in train_data[:,1]])
@@ -29,7 +43,6 @@ def get_data():
     
     test_images = np.array([np.array([np.float32(x) for x in img.split(' ')]).reshape(48,48) 
                         for img in test_data[:,1]])
-
     print("got testing images")
     print(test_images.shape)
 
@@ -37,9 +50,44 @@ def get_data():
     print("got training labels")
     print(train_labels.shape)
 
-
     test_labels = np.array([np.float32(x) for x in test_data[:,0]])
     print("got testing labels")
     print(test_labels.shape)
 
+    # Calculating mean and std of dataset for normalization
+
+    train_images_scaled = train_images / 255.
+
+    mean = np.mean(train_images_scaled, axis=(0,1,2))
+    stdev = np.std(train_images_scaled, axis=(0,1,2))
+
+    print("got mean and std")
+    
+    print("Dataset mean: ", mean)
+
+    print("Dataset std: ", stdev)
+
+    # Performing data normalization
+    if normalize:
+
+        for i in range(len(train_images)):
+            train_images[i] = pre_process_fn(train_images[i])
+
+
     return train_images, train_labels, test_images, test_labels
+
+def standardize(img):
+
+    global mean
+    global stdev
+
+    img = (img - mean) / stdev
+
+    return img
+
+def pre_process_fn(img):
+    img /= 225.
+    standardize(img)
+
+    return img
+

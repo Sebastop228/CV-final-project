@@ -7,8 +7,25 @@ import os
 from model import Model
 from preprocess import *
 
+<<<<<<< Updated upstream
 data_dir = '../../../data/' # Change this so it refers to where you have the data
 
+=======
+
+def parse_args():
+    """ Perform command-line argument parsing. """
+
+    parser = argparse.ArgumentParser(
+        description="Let's train some neural nets!")
+    parser.add_argument(
+        '--load-checkpoint',
+        action='store_true',
+        help='''1 to load checkpoint, 0 to train from scratch''')
+    parser.add_argument(
+        '--normalize-data',
+        help=''' add this flag if you want to normalize the input data ''')
+    return parser.parse_args()
+>>>>>>> Stashed changes
 
 def train(model, train_labels, train_images):
 
@@ -51,7 +68,10 @@ def test(model, test_labels, test_images):
 
 def main():
 
-    train_images, train_labels, test_images, test_labels = get_data()
+    if ARGS.normalize_data is None:
+        train_images, train_labels, test_images, test_labels = get_data(False)
+    else:
+       train_images, train_labels, test_images, test_labels = get_data(True) 
 
     model = Model()
     # Putting input shape here instead
