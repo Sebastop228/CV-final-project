@@ -21,9 +21,11 @@ def parse_args():
         help='''1 to load checkpoint, 0 to train from scratch''')
     parser.add_argument(
         '--normalize-data',
+        default = None,
         help=''' add this flag if you want to normalize the input data ''')
     parser.add_argument(
         '--augment-data',
+        default = None,
         help=''' add this flag if you want to augment the input data ''')
     return parser.parse_args()
 
