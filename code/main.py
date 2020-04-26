@@ -4,13 +4,12 @@ import hyperparameters as hp
 import pandas as pd  # You're going to need to install this
 import csv
 import os
+import argparse
 from model import Model
 from preprocess import *
 
 <<<<<<< Updated upstream
 data_dir = '../../../data/' # Change this so it refers to where you have the data
-
-=======
 
 def parse_args():
     """ Perform command-line argument parsing. """
@@ -71,18 +70,34 @@ def main():
     if ARGS.normalize_data is None:
         train_images, train_labels, test_images, test_labels = get_data(False)
     else:
-       train_images, train_labels, test_images, test_labels = get_data(True) 
+       train_images, train_labels, test_images, test_labels = get_data(True)
 
     model = Model()
     # Putting input shape here instead
     model(tf.keras.Input(shape=(48, 48, 1)))
 
-    for i in range(hp.num_epochs):
+    epoch = tf.Variable(0, trainable=False)
+    checkpoint = tf.train.Checkpoint(epoch=epoch, model=model)
+    manager = tf.train.CheckpointManager(checkpoint, './checkpoints', max_to_keep=3)
+
+    if ARGS.load_checkpoint:
+        checkpoint.restore(manager.latest_checkpoint)
+        if manager.latest_checkpoint:
+            print("Restored from {}".format(manager.latest_checkpoint))
+        else:
+            print("Initializing from scratch.")
+
+    for i in range(epoch.numpy(), hp.num_epochs, 1):
         train(model, train_labels, train_images)
-
         accuracy = test(model, test_labels, test_images)
+        if i % 4 == 3:
+            epoch.assign(i + 1)
+            save_path = manager.save()
+            print("Saved checkpoint for epoch {}: {}".format(i, save_path))
 
-        print("Epoch ", i, " accuracy is ", accuracy / test_labels.shape[0])
+        print("Epoch ", i, " accuracy is ", accuracy)
+
+ARGS = parse_args()
 
 if __name__ == '__main__':
     main()

@@ -11,13 +11,11 @@ def get_data(normalize):
 
     global mean
     global stdev
-    
-<<<<<<< Updated upstream
-=======
+
     # Reading in info from CSV
 
->>>>>>> Stashed changes
     data_dir = '../../../../data/' # Change this so it refers to where you have the data
+
 
     main_dir = os.path.abspath(__file__)
 
@@ -35,13 +33,13 @@ def get_data(normalize):
                 or lst[2] == 'PrivateTest'])
 
     # Converting things to np arrays
-    
-    train_images = np.array([np.array([np.float32(x) for x in img.split(' ')]).reshape(48,48) 
+
+    train_images = np.array([np.array([np.float32(x) for x in img.split(' ')]).reshape(48,48)
                         for img in train_data[:,1]])
     print("got training images")
     print(train_images.shape)
-    
-    test_images = np.array([np.array([np.float32(x) for x in img.split(' ')]).reshape(48,48) 
+
+    test_images = np.array([np.array([np.float32(x) for x in img.split(' ')]).reshape(48,48)
                         for img in test_data[:,1]])
     print("got testing images")
     print(test_images.shape)
@@ -62,7 +60,7 @@ def get_data(normalize):
     stdev = np.std(train_images_scaled, axis=(0,1,2))
 
     print("got mean and std")
-    
+
     print("Dataset mean: ", mean)
 
     print("Dataset std: ", stdev)
@@ -90,4 +88,3 @@ def pre_process_fn(img):
     standardize(img)
 
     return img
-
