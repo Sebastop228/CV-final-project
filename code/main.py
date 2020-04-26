@@ -8,7 +8,6 @@ import argparse
 from model import Model
 from preprocess import *
 
-<<<<<<< Updated upstream
 data_dir = '../../../data/' # Change this so it refers to where you have the data
 
 def parse_args():
@@ -23,32 +22,59 @@ def parse_args():
     parser.add_argument(
         '--normalize-data',
         help=''' add this flag if you want to normalize the input data ''')
+    parser.add_argument(
+        '--augment-data',
+        help=''' add this flag if you want to augment the input data ''')
     return parser.parse_args()
->>>>>>> Stashed changes
 
-def train(model, train_labels, train_images):
+def train(augment, model, train_labels, train_images):
 
-    amt_to_train = train_images.shape[0] #Amt of images we're training over
-    batch_size = hp.batch_size # make batch size a hyperparameter, either in model or hyperparameters.py
+    if augment:
 
-    for i in range(0, amt_to_train, batch_size):
+        datagen = tf.keras.preprocessing.image.ImageDataGenerator(
+                    featurewise_center=True,
+                    preprocessing_function = pre_process_fn,
+                    rotation_range=20,
+                    width_shift_range=0.2,
+                    height_shift_range=0.2,
+                    horizontal_flip=True)
+
+        batches = 0
+        for x_batch, y_batch in datagen.flow(train_images, train_labels, batch_size=hp.batch_size):
+            model.fit(x_batch, y_batch)
+            batches += 1
+            if batches >= len(train_images) / hp.batch_size:
+            # we need to break the loop by hand because
+            # the generator loops indefinitely
+                break
+
+    else:
+
+        amt_to_train = train_images.shape[0] #Amt of images we're training over
+        batch_size = hp.batch_size # make batch size a hyperparameter, either in model or hyperparameters.py
+
+        for i in range(0, amt_to_train, batch_size):
         # indexed into the arrays so that, for the last batch, i+batch_size doesn't go over the size of the array
 
-        print("TRAINING: batch ", i, "out of ", amt_to_train)
+            print("TRAINING: batch ", i, "out of ", amt_to_train)
 
-        batch_images = train_images[i:min(i+batch_size, amt_to_train)]
-        batch_labels = train_labels[i:min(i+batch_size, amt_to_train)]
-        with tf.GradientTape() as tape:
+            batch_images = train_images[i:min(i+batch_size, amt_to_train)]
+            batch_labels = train_labels[i:min(i+batch_size, amt_to_train)]
+            with tf.GradientTape() as tape:
             # Had to expand dimmensions so things would work
-            batch_images = np.expand_dims(batch_images, axis=3)
-            probs = model.call(batch_images)
-            loss = model.loss_fn(batch_labels, probs)
-        gradients = tape.gradient(loss, model.trainable_variables)
-        model.optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+                batch_images = np.expand_dims(batch_images, axis=3)
+                probs = model.call(batch_images)
+                loss = model.loss_fn(batch_labels, probs)
+            gradients = tape.gradient(loss, model.trainable_variables)
+            model.optimizer.apply_gradients(zip(gradients, model.trainable_variables))
 
 
 
-def test(model, test_labels, test_images):
+def test(augment, model, test_labels, test_images):
+
+    if augment:
+        test_images /= 255.
+
     amt_to_test = test_images.shape[0]
     batch_size = hp.batch_size
     amt_correct = 0
@@ -87,9 +113,14 @@ def main():
         else:
             print("Initializing from scratch.")
 
+    augment = False
+
+    if ARGS.augment_data is not None:
+        augment = True
+
     for i in range(epoch.numpy(), hp.num_epochs, 1):
-        train(model, train_labels, train_images)
-        accuracy = test(model, test_labels, test_images)
+        train(augment, model, train_labels, train_images)
+        accuracy = test(augment, model, test_labels, test_images)
         if i % 4 == 3:
             epoch.assign(i + 1)
             save_path = manager.save()
