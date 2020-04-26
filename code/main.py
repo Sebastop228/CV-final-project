@@ -4,10 +4,22 @@ import hyperparameters as hp
 import pandas as pd  # You're going to need to install this
 import csv
 import os
+import argparse
 from model import Model
+from preprocess import *
 
 data_dir = '../../data/' # Change this so it refers to where you have the data
 
+def parse_args():
+    """ Perform command-line argument parsing. """
+
+    parser = argparse.ArgumentParser(
+        description="Let's train some neural nets!")
+    parser.add_argument(
+        '--load-checkpoint',
+        action='store_true',
+        help='''1 to load checkpoint, 0 to train from scratch''')
+    return parser.parse_args()
 
 def train(model, train_labels, train_images):
 
@@ -50,49 +62,34 @@ def test(model, test_labels, test_images):
 
 def main():
 
-    main_dir = os.path.dirname(__file__)
-
-    train_path = os.path.normpath(main_dir + data_dir + 'train.csv')
-    #test_path = os.path.normpath(main_dir + data_dir + 'test.csv')
-
-    train_file = open(train_path)
-    #test_file = open(test_path)
-
-    train_data = pd.read_csv(train_file)
-    #test_data = pd.read_csv(test_file)
-    
-    images = np.array([np.array([np.float32(x) for x in img.split(' ')]).reshape(48,48) 
-                        for img in train_data['pixels'].values])
-    total_num = images.shape[0]
-    num_training = int(total_num * hp.percent_training)
-
-    train_images = images[:num_training]
-    print("got training images")
-    #print(train_images.shape)
-    test_images = images[num_training:]
-    print("got testing images")
-    #print(test_images.shape)
-
-    labels = np.array([np.float32(x) for x in train_data['emotion'].values])
-
-    train_labels = labels[:num_training]
-    print("got training labels")
-    #print(train_labels.shape)
-    test_labels = labels[num_training:]
-    print("got testing labels")
-    #print(train_labels.shape)
-
+    train_images, train_labels, test_images, test_labels = get_data()
 
     model = Model()
     # Putting input shape here instead
     model(tf.keras.Input(shape=(48, 48, 1)))
 
-    for i in range(hp.num_epochs):
-        train(model, train_labels, train_images)
+    epoch = tf.Variable(0, trainable=False)
+    checkpoint = tf.train.Checkpoint(epoch=epoch, model=model)
+    manager = tf.train.CheckpointManager(checkpoint, './checkpoints', max_to_keep=3)
 
+    if ARGS.load_checkpoint:
+        checkpoint.restore(manager.latest_checkpoint)
+        if manager.latest_checkpoint:
+            print("Restored from {}".format(manager.latest_checkpoint))
+        else:
+            print("Initializing from scratch.")
+
+    for i in range(epoch.numpy(), hp.num_epochs, 1):
+        train(model, train_labels, train_images)
         accuracy = test(model, test_labels, test_images)
+        if i % 4 == 3:
+            epoch.assign(i + 1)
+            save_path = manager.save()
+            print("Saved checkpoint for epoch {}: {}".format(i, save_path))
 
         print("Epoch ", i, " accuracy is ", accuracy)
+
+ARGS = parse_args()
 
 if __name__ == '__main__':
     main()
