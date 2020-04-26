@@ -6,7 +6,7 @@ import hyperparameters2 as hp2
 import csv
 import os
 import argparse
-from model import Model
+from model2 import Model
 from preprocess import *
 
 data_dir = '../../data/' # Change this so it refers to where you have the data

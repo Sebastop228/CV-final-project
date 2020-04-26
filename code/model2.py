@@ -111,7 +111,6 @@ class Model(tf.keras.Model):
 
 
     def call(self, inputs):
-        
         for layer in self.architecture:
             inputs = layer(inputs)
 

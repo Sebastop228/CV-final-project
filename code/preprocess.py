@@ -25,21 +25,21 @@ def get_data():
     train_images = np.array([np.array([np.float32(x) for x in img.split(' ')]).reshape(48,48) 
                         for img in train_data[:,1]])
     print("got training images")
-    print(train_images.shape)
+    # print(train_images.shape)
     
     test_images = np.array([np.array([np.float32(x) for x in img.split(' ')]).reshape(48,48) 
                         for img in test_data[:,1]])
 
     print("got testing images")
-    print(test_images.shape)
+    # print(test_images.shape)
 
     train_labels = np.array([np.float32(x) for x in train_data[:,0]])
     print("got training labels")
-    print(train_labels.shape)
+    # print(train_labels.shape)
 
 
     test_labels = np.array([np.float32(x) for x in test_data[:,0]])
     print("got testing labels")
-    print(test_labels.shape)
+    # print(test_labels.shape)
 
     return train_images, train_labels, test_images, test_labels
