@@ -77,6 +77,7 @@ class Model(tf.keras.Model):
         #the number of "correct" predictions; that is, the amount of images (of which we have batch_size) for which the highest probability
         #is the correct emotion (which we would get from looking at the corresponding label)
         
+<<<<<<< Updated upstream
         # print("LABEL IS ", labels)
         # print("LABEL SHAPE IS ", labels.shape)
         highest_prediction_index = np.argmax(probs, axis = 1)
@@ -85,6 +86,12 @@ class Model(tf.keras.Model):
         print("AMT CORRECT IS ", amt_correct)
         exit(0)
 =======
+=======
+        #print("LABEL IS ", labels)
+        #print("LABEL SHAPE IS ", labels.shape)
+        highest_prediction_index = np.argmax(probs, axis = 1)
+        amt_correct = np.count_nonzero(labels == highest_prediction_index)
+>>>>>>> Stashed changes
         #print("AMT CORRECT IS ", amt_correct)
         #exit(0)
 >>>>>>> Stashed changes
