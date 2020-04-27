@@ -75,10 +75,11 @@ def train(augment, model, train_labels, train_images):
 
 
 
-def test(augment, model, test_labels, test_images):
+def test(normalize, model, test_labels, test_images):
 
-    if augment:
-        test_images /= 255.
+    if normalize:
+        for img in test_images:
+            img = pre_process_fn(img)
 
     amt_to_test = test_images.shape[0]
     batch_size = hp.batch_size
@@ -98,12 +99,12 @@ def test(augment, model, test_labels, test_images):
 
 def main():
 
-    scale = False
+    normalize = False
 
     if ARGS.normalize_data is not None:
-        scale = True
+        normalize = True
     
-    train_images, train_labels, test_images, test_labels = get_data(scale)
+    train_images, train_labels, test_images, test_labels = get_data(normalize)
 
     model = Model()
     # Putting input shape here instead
@@ -124,7 +125,7 @@ def main():
 
     if ARGS.augment_data is not None:
         augment = True
-        scale = True
+        normalize = True
         model.compile(loss='categorical_crossentropy', metrics= ['categorical_accuracy'])
 
     for i in range(epoch.numpy(), hp.num_epochs, 1):
