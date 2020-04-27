@@ -33,6 +33,8 @@ def train(augment, model, train_labels, train_images):
 
     if augment:
 
+        train_images = np.expand_dims(train_images, axis=3)
+
         datagen = tf.keras.preprocessing.image.ImageDataGenerator(
                     featurewise_center=True,
                     preprocessing_function = pre_process_fn,
@@ -43,6 +45,7 @@ def train(augment, model, train_labels, train_images):
 
         batches = 0
         for x_batch, y_batch in datagen.flow(train_images, train_labels, batch_size=hp.batch_size):
+            y_batch = tf.keras.utils.to_categorical(y_batch, num_classes=7)
             model.fit(x_batch, y_batch)
             batches += 1
             if batches >= len(train_images) / hp.batch_size:
@@ -95,10 +98,12 @@ def test(augment, model, test_labels, test_images):
 
 def main():
 
-    if ARGS.normalize_data is None:
-        train_images, train_labels, test_images, test_labels = get_data(False)
-    else:
-       train_images, train_labels, test_images, test_labels = get_data(True)
+    scale = False
+
+    if ARGS.normalize_data is not None:
+        scale = True
+    
+    train_images, train_labels, test_images, test_labels = get_data(scale)
 
     model = Model()
     # Putting input shape here instead
@@ -119,10 +124,12 @@ def main():
 
     if ARGS.augment_data is not None:
         augment = True
+        scale = True
+        model.compile(loss='categorical_crossentropy', metrics= ['categorical_accuracy'])
 
     for i in range(epoch.numpy(), hp.num_epochs, 1):
         train(augment, model, train_labels, train_images)
-        accuracy = test(augment, model, test_labels, test_images)
+        accuracy = test(scale, model, test_labels, test_images)
         if i % 4 == 3:
             epoch.assign(i + 1)
             save_path = manager.save()

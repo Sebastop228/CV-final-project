@@ -12,7 +12,6 @@ class Model(tf.keras.Model):
         # Do we want to use float32 or float64??
         tf.keras.backend.set_floatx('float32')
 
-
         self.optimizer = tf.keras.optimizers.Adam(learning_rate = hp.learning_rate, decay = hp.decay)
         
         #They don't use a kernel initializer in their github code, but we could play around with that.
@@ -68,7 +67,7 @@ class Model(tf.keras.Model):
         # Which loss function to use? Paper uses Categorical crossentropy (from their github repo)
 
         # Added one-hot encoding in order to compute loss
-        one_hot = tf.keras.utils.to_categorical(labels)
+        one_hot = tf.keras.utils.to_categorical(labels, num_classes=7)
         return tf.keras.losses.categorical_crossentropy(one_hot, predictions, from_logits = False)
 
 
