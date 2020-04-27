@@ -79,7 +79,7 @@ def test(normalize, model, test_labels, test_images):
 
     if normalize:
         mean = np.mean(test_images, axis=(0,1,2))
-        stdev = np.mean(test_images, axis=(0,1,2))
+        stdev = np.std(test_images, axis=(0,1,2))
 
         test_images = (test_images - mean) / stdev
 
