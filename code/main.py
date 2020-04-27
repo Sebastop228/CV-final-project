@@ -78,8 +78,10 @@ def train(augment, model, train_labels, train_images):
 def test(normalize, model, test_labels, test_images):
 
     if normalize:
-        for img in test_images:
-            img = pre_process_fn(img)
+        mean = np.mean(test_images, axis=(0,1,2))
+        stdev = np.mean(test_images, axis=(0,1,2))
+
+        test_images = (test_images - mean) / stdev
 
     amt_to_test = test_images.shape[0]
     batch_size = hp.batch_size
