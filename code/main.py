@@ -8,6 +8,8 @@ import os
 import argparse
 from model2 import Model
 from preprocess import *
+from sklearn.model_selection import train_test_split
+
 
 data_dir = '../../data/' # Change this so it refers to where you have the data
 
@@ -24,19 +26,16 @@ def parse_args():
 
 def train(model, train_labels, train_images):
 
-    amt_to_train = train_images.shape[0] #Amt of images we're training over
-    batch_size = hp2.batch_size # make batch size a hyperparameter, either in model or hyperparameters.py
+    amt_to_train = train_images.shape[0]
+    batch_size = hp2.batch_size 
 
     for i in range(0, amt_to_train, batch_size):
         # indexed into the arrays so that, for the last batch, i+batch_size doesn't go over the size of the array
-
-        # print("TRAINING: batch ", i, "out of ", amt_to_train)
-
         batch_images = train_images[i:min(i+batch_size, amt_to_train)]
         batch_labels = train_labels[i:min(i+batch_size, amt_to_train)]
         with tf.GradientTape() as tape:
             # Had to expand dimmensions so things would work
-            batch_images = np.expand_dims(batch_images, axis=3)
+            # batch_images = np.expand_dims(batch_images, axis=3) # NOT NECESSARY FOR MODEL 2
             probs = model.call(batch_images)
             # print(probs)
             # exit(0)
@@ -54,7 +53,7 @@ def test(model, test_labels, test_images):
         batch_images = test_images[i:min(i+batch_size, amt_to_test)]
         batch_labels = test_labels[i:min(i+batch_size, amt_to_test)]
         # Also had to expand dimmensions here
-        batch_images = np.expand_dims(batch_images, axis=3)
+        # batch_images = np.expand_dims(batch_images, axis=3) # NOT NECESSARY FOR MODEL 2
         probs = model.call(batch_images)
 
         #figure out how we want to calculate accuracy - accuracy function in model?? Would pass it labels and logits
@@ -64,8 +63,25 @@ def test(model, test_labels, test_images):
 
 
 def main():
+    ################# IMPORTANT ############################
+    #If you want to run model 1, be sure to comment back the proper get_data (below) and uncomment 
+    # the one for model 2. Also, be sure to in the header switch to "from model import Model" instead of
+    # "model2 import Model". Lastly, switch all the "hp2"s to "hp"
 
-    train_images, train_labels, test_images, test_labels = get_data()
+
+
+
+    ################# FOR MODEL 1 ##########################
+    # train_images, train_labels, test_images, test_labels = get_data()
+
+    ################# FOR MODEL 1 ##########################
+
+
+    ################# FOR MODEL 2 ##########################
+    x, y = get_data_for_model2()
+    train_images, test_images, train_labels, test_labels = train_test_split(x, y, test_size=0.1, random_state=42)
+    # train_images, validation_images, train_labels, validation_labels = train_test_split(train_images, train_labels, test_size=0.1, random_state=41)
+    ################# FOR MODEL 1 ##########################
 
     model = Model()
     # Putting input shape here instead

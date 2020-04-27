@@ -1,6 +1,6 @@
 #To play around with
 
-batch_size = 64
+batch_size = 128 #Paper says 64, found slightly better results with 128
 
 learning_rate = 0.001
 
