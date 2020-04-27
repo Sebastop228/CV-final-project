@@ -38,6 +38,8 @@ def train(model, train_labels, train_images):
             # Had to expand dimmensions so things would work
             batch_images = np.expand_dims(batch_images, axis=3)
             probs = model.call(batch_images)
+            # print(probs)
+            # exit(0)
             loss = model.loss_fn(batch_labels, probs)
         gradients = tape.gradient(loss, model.trainable_variables)
         model.optimizer.apply_gradients(zip(gradients, model.trainable_variables))

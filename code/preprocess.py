@@ -26,6 +26,8 @@ def get_data():
                         for img in train_data[:,1]])
     print("got training images")
     # print(train_images.shape)
+    train_images -= np.mean(train_images, axis=0)
+    train_images /= np.std(train_images, axis=0)
     
     test_images = np.array([np.array([np.float32(x) for x in img.split(' ')]).reshape(48,48) 
                         for img in test_data[:,1]])
