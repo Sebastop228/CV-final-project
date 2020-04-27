@@ -1,11 +1,12 @@
 import tensorflow as tf 
 import numpy as np
 import hyperparameters as hp
-import pandas as pd  # You're going to need to install this
+import hyperparameters2 as hp2
+# import pandas as pd  # You're going to need to install this
 import csv
 import os
 import argparse
-from model import Model
+from model2 import Model
 from preprocess import *
 
 data_dir = '../../data/' # Change this so it refers to where you have the data
@@ -24,12 +25,12 @@ def parse_args():
 def train(model, train_labels, train_images):
 
     amt_to_train = train_images.shape[0] #Amt of images we're training over
-    batch_size = hp.batch_size # make batch size a hyperparameter, either in model or hyperparameters.py
+    batch_size = hp2.batch_size # make batch size a hyperparameter, either in model or hyperparameters.py
 
     for i in range(0, amt_to_train, batch_size):
         # indexed into the arrays so that, for the last batch, i+batch_size doesn't go over the size of the array
 
-        print("TRAINING: batch ", i, "out of ", amt_to_train)
+        # print("TRAINING: batch ", i, "out of ", amt_to_train)
 
         batch_images = train_images[i:min(i+batch_size, amt_to_train)]
         batch_labels = train_labels[i:min(i+batch_size, amt_to_train)]
@@ -37,6 +38,8 @@ def train(model, train_labels, train_images):
             # Had to expand dimmensions so things would work
             batch_images = np.expand_dims(batch_images, axis=3)
             probs = model.call(batch_images)
+            # print(probs)
+            # exit(0)
             loss = model.loss_fn(batch_labels, probs)
         gradients = tape.gradient(loss, model.trainable_variables)
         model.optimizer.apply_gradients(zip(gradients, model.trainable_variables))
@@ -45,7 +48,7 @@ def train(model, train_labels, train_images):
 
 def test(model, test_labels, test_images):
     amt_to_test = test_images.shape[0]
-    batch_size = hp.batch_size
+    batch_size = hp2.batch_size
     amt_correct = 0
     for i in range(0, amt_to_test, batch_size):
         batch_images = test_images[i:min(i+batch_size, amt_to_test)]
@@ -79,8 +82,10 @@ def main():
         else:
             print("Initializing from scratch.")
 
-    for i in range(epoch.numpy(), hp.num_epochs, 1):
+    for i in range(epoch.numpy(), hp2.num_epochs, 1):
+        print("Training for epoch ", i, "out of ", hp2.num_epochs)
         train(model, train_labels, train_images)
+        print("Testing for epoch ", i, "out of ", hp2.num_epochs)
         accuracy = test(model, test_labels, test_images)
         if i % 4 == 3:
             epoch.assign(i + 1)

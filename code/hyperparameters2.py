@@ -1,10 +1,12 @@
 #To play around with
 
-batch_size = 128
+#To play around with
 
-learning_rate = 0.01
+batch_size = 64
 
-num_epochs = 35
+learning_rate = 0.001
+
+num_epochs = 100
 
 stddev = 0.1
 
