@@ -21,11 +21,11 @@ def parse_args():
         help='''1 to load checkpoint, 0 to train from scratch''')
     parser.add_argument(
         '--normalize-data',
-        default = None,
+        action='store_true',
         help=''' add this flag if you want to normalize the input data ''')
     parser.add_argument(
         '--augment-data',
-        default = None,
+        action='store_true',
         help=''' add this flag if you want to augment the input data ''')
     return parser.parse_args()
 
@@ -103,7 +103,7 @@ def main():
 
     normalize = False
 
-    if ARGS.normalize_data is not None:
+    if ARGS.normalize_data:
         normalize = True
     
     train_images, train_labels, test_images, test_labels = get_data(normalize)
@@ -125,14 +125,14 @@ def main():
 
     augment = False
 
-    if ARGS.augment_data is not None:
+    if ARGS.augment_data:
         augment = True
         normalize = True
         model.compile(loss='categorical_crossentropy', metrics= ['categorical_accuracy'])
 
     for i in range(epoch.numpy(), hp.num_epochs, 1):
         train(augment, model, train_labels, train_images)
-        accuracy = test(scale, model, test_labels, test_images)
+        accuracy = test(normalize, model, test_labels, test_images)
         if i % 4 == 3:
             epoch.assign(i + 1)
             save_path = manager.save()
