@@ -36,7 +36,6 @@ def train(augment, model, train_labels, train_images):
         train_images = np.expand_dims(train_images, axis=3)
 
         datagen = tf.keras.preprocessing.image.ImageDataGenerator(
-                    featurewise_center=True,
                     preprocessing_function = pre_process_fn,
                     rotation_range=20,
                     width_shift_range=0.2,
