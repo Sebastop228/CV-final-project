@@ -84,7 +84,7 @@ def standardize(img):
     return img
 
 def pre_process_fn(img):
-    img /= 225.
+    img /= 255.
     standardize(img)
 
     return img

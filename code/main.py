@@ -29,7 +29,7 @@ def parse_args():
         help=''' add this flag if you want to augment the input data ''')
     return parser.parse_args()
 
-def train(augment, model, train_labels, train_images):
+def train(augment, model, train_labels, train_images, validation_data):
 
     if augment:
 
@@ -38,10 +38,11 @@ def train(augment, model, train_labels, train_images):
         datagen = tf.keras.preprocessing.image.ImageDataGenerator(
                     preprocessing_function = pre_process_fn,
                     rotation_range=20,
-                    width_shift_range=0.2,
-                    height_shift_range=0.2,
-                    horizontal_flip=True)
-
+                    #width_shift_range=0.2,
+                    #height_shift_range=0.2,
+                    #horizontal_flip=True
+                    )
+        '''
         batches = 0
         for x_batch, y_batch in datagen.flow(train_images, train_labels, batch_size=hp.batch_size):
             y_batch = tf.keras.utils.to_categorical(y_batch, num_classes=7)
@@ -51,6 +52,12 @@ def train(augment, model, train_labels, train_images):
             # we need to break the loop by hand because
             # the generator loops indefinitely
                 break
+        '''
+
+        train_labels = tf.keras.utils.to_categorical(train_labels, num_classes=7)
+        model.fit(datagen.flow(train_images, train_labels, batch_size=hp.batch_size),
+                    steps_per_epoch=len(train_images) / hp.batch_size, epochs=hp.num_epochs,
+                    validation_data= validation_data)
 
     else:
 
@@ -77,6 +84,7 @@ def train(augment, model, train_labels, train_images):
 def test(normalize, model, test_labels, test_images):
 
     if normalize:
+        test_images /= 255.
         mean = np.mean(test_images, axis=(0,1,2))
         stdev = np.std(test_images, axis=(0,1,2))
 
@@ -129,15 +137,28 @@ def main():
         normalize = True
         model.compile(loss='categorical_crossentropy', metrics= ['categorical_accuracy'])
 
-    for i in range(epoch.numpy(), hp.num_epochs, 1):
-        train(augment, model, train_labels, train_images)
-        accuracy = test(normalize, model, test_labels, test_images)
-        if i % 4 == 3:
-            epoch.assign(i + 1)
-            save_path = manager.save()
-            print("Saved checkpoint for epoch {}: {}".format(i, save_path))
+        test_labels = tf.keras.utils.to_categorical(test_labels, num_classes=7)
+        test_images = np.expand_dims(test_images, axis=3)
 
-        print("Epoch ", i, " accuracy is ", accuracy)
+        for img in test_images:
+            img = pre_process_fn(img)
+
+        validation_data = (test_images, test_labels)
+        train(augment, model, train_labels, train_images, validation_data)
+
+        results = model.evaluate(test_images, test_labels, batch_size=hp.batch_size)
+        print('test loss, test acc:', results)
+
+    else:
+        for i in range(epoch.numpy(), hp.num_epochs, 1):
+            train(augment, model, train_labels, train_images)
+            accuracy = test(normalize, model, test_labels, test_images)
+            if i % 4 == 3:
+                epoch.assign(i + 1)
+                save_path = manager.save()
+                print("Saved checkpoint for epoch {}: {}".format(i, save_path))
+
+            print("Epoch ", i, " accuracy is ", accuracy)
 
 ARGS = parse_args()
 
