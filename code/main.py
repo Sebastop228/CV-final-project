@@ -116,8 +116,8 @@ cv2.ocl.setUseOpenCL(False)
 # dictionary which assigns each label an emotion (alphabetical order)
 emotions = {0: "Angry", 1: "Disgusted", 2: "Fearful", 3: "Happy", 4: "Neutral", 5: "Sad", 6: "Surprised"}
 
-cascPath = sys.argv[1]
-faceCascade = cv2.CascadeClassifier(cascPath)
+path = "haarcascade_frontalface_default.xml"
+faceCascade = cv2.CascadeClassifier(path)
 feed = cv2.VideoCapture(0)
 
 while True:
