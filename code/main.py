@@ -3,6 +3,7 @@ import numpy as np
 import hyperparameters as hp
 import hyperparameters2 as hp2
 import cv2
+import sys
 # import pandas as pd  # You're going to need to install this
 import csv
 import os
@@ -115,11 +116,13 @@ cv2.ocl.setUseOpenCL(False)
 # dictionary which assigns each label an emotion (alphabetical order)
 emotions = {0: "Angry", 1: "Disgusted", 2: "Fearful", 3: "Happy", 4: "Neutral", 5: "Sad", 6: "Surprised"}
 
+cascPath = sys.argv[1]
+faceCascade = cv2.CascadeClassifier(cascPath)
 feed = cv2.VideoCapture(0)
 
 while True:
     #read frame-by-frame
-    ret, frame = video_capture.read()
+    ret, frame = feed.read()
 
     #convert to grayscale
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -140,7 +143,7 @@ while True:
         cropped_img = np.expand_dims(np.expand_dims(cv2.resize(roi_gray, (48, 48)), -1), 0)
         prediction = model.predict(cropped_img)
         maxindex = int(np.argmax(prediction))
-        cv2.putText(frame, emotion_dict[maxindex], (x+20, y-60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+        cv2.putText(frame, emotions[maxindex], (x+20, y-60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
 
     cv2.imshow('Video', cv2.resize(frame,(1600,960),interpolation = cv2.INTER_CUBIC))
     if cv2.waitKey(1) & 0xFF == ord('q'):
