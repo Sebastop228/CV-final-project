@@ -42,17 +42,6 @@ def train(augment, model, train_labels, train_images, validation_data):
                     #height_shift_range=0.2,
                     #horizontal_flip=True
                     )
-        '''
-        batches = 0
-        for x_batch, y_batch in datagen.flow(train_images, train_labels, batch_size=hp.batch_size):
-            y_batch = tf.keras.utils.to_categorical(y_batch, num_classes=7)
-            model.fit(x_batch, y_batch)
-            batches += 1
-            if batches >= len(train_images) / hp.batch_size:
-            # we need to break the loop by hand because
-            # the generator loops indefinitely
-                break
-        '''
 
         train_labels = tf.keras.utils.to_categorical(train_labels, num_classes=7)
         model.fit(datagen.flow(train_images, train_labels, batch_size=hp.batch_size),
