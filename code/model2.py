@@ -20,45 +20,59 @@ class Model(tf.keras.Model):
         self.initializer = tf.keras.initializers.TruncatedNormal(stddev=hp2.stddev)
 
         self.architecture = tf.keras.Sequential()
+
+        
+        
+        ################################## ARCHITECTURE BLOCK 1 #######################################################
+        #Could not get to work due to only returning one-hots. Paper says 65% accuracy
+        
         # self.architecture = [
 
-            # # "https://github.com/jrishabh96/Facial-Expression-Recognition/blob/master/cnn_major.py""
+        #     # "https://github.com/jrishabh96/Facial-Expression-Recognition/blob/master/cnn_major.py""
 
 
-            # tf.keras.layers.Conv2D(64, (3,3), padding = 'same'),
-            # tf.keras.layers.BatchNormalization(),
-            # tf.keras.layers.Activation('relu'),
-            # tf.keras.layers.MaxPool2D(pool_size = (2,2)),
-            # tf.keras.layers.Dropout(0.25),
+        #     tf.keras.layers.Conv2D(64, (3,3), padding = 'same'),
+        #     tf.keras.layers.BatchNormalization(),
+        #     tf.keras.layers.Activation('relu'),
+        #     tf.keras.layers.MaxPool2D(pool_size = (2,2)),
+        #     tf.keras.layers.Dropout(0.25),
 
-            # tf.keras.layers.Conv2D(128, (5,5), padding = 'same'),
-            # tf.keras.layers.BatchNormalization(),
-            # tf.keras.layers.Activation('relu'),
-            # tf.keras.layers.MaxPool2D(pool_size = (2,2)),
-            # tf.keras.layers.Dropout(0.25),
+        #     tf.keras.layers.Conv2D(128, (5,5), padding = 'same'),
+        #     tf.keras.layers.BatchNormalization(),
+        #     tf.keras.layers.Activation('relu'),
+        #     tf.keras.layers.MaxPool2D(pool_size = (2,2)),
+        #     tf.keras.layers.Dropout(0.25),
 
-            # tf.keras.layers.Conv2D(512, (3,3), padding = 'same'),
-            # tf.keras.layers.BatchNormalization(),
-            # tf.keras.layers.Activation('relu'),
-            # tf.keras.layers.MaxPool2D(pool_size = (2,2)),
-            # tf.keras.layers.Dropout(0.25),
+        #     tf.keras.layers.Conv2D(512, (3,3), padding = 'same'),
+        #     tf.keras.layers.BatchNormalization(),
+        #     tf.keras.layers.Activation('relu'),
+        #     tf.keras.layers.MaxPool2D(pool_size = (2,2)),
+        #     tf.keras.layers.Dropout(0.25),
 
-            # tf.keras.layers.Conv2D(512, (3,3), padding = 'same'),
-            # tf.keras.layers.BatchNormalization(),
-            # tf.keras.layers.Activation('relu'),
-            # tf.keras.layers.MaxPool2D(pool_size = (2,2)),
-            # tf.keras.layers.Dropout(0.25),
+        #     tf.keras.layers.Conv2D(512, (3,3), padding = 'same'),
+        #     tf.keras.layers.BatchNormalization(),
+        #     tf.keras.layers.Activation('relu'),
+        #     tf.keras.layers.MaxPool2D(pool_size = (2,2)),
+        #     tf.keras.layers.Dropout(0.25),
 
-            # tf.keras.layers.Flatten(),
+        #     tf.keras.layers.Flatten(),
 
-            # tf.keras.layers.Dense(512, activation = "relu", kernel_regularizer = tf.keras.regularizers.l2(0.001)),
-            # tf.keras.layers.BatchNormalization(),
-            # # tf.keras.layers.Activation('relu'),
-            # tf.keras.layers.Dropout(0.25),
+        #     tf.keras.layers.Dense(512, activation = "relu", kernel_regularizer = tf.keras.regularizers.l2(0.001)),
+        #     tf.keras.layers.BatchNormalization(),
+        #     # tf.keras.layers.Activation('relu'),
+        #     tf.keras.layers.Dropout(0.25),
 
-            # tf.keras.layers.Dense(7, activation = 'sigmoid') #potentially try softmax?
+        #     tf.keras.layers.Dense(7, activation = 'sigmoid') #potentially try softmax?
+
+        # ]
+        ################################## ARCHITECTURE BLOCK 1 #######################################################
 
 
+        ################################## ARCHITECTURE BLOCK 2 #######################################################
+        #From https://medium.com/themlblog/how-to-do-facial-emotion-recognition-using-a-cnn-b7bbae79cd8f
+        #Github Repo: https://github.com/gitshanks/fer2013
+
+        # Says accuracy of 66%; was able to obtain 62%
 
 
         self.architecture.add(tf.keras.layers.Conv2D(64, kernel_size=(3, 3), activation='relu', kernel_regularizer=tf.keras.regularizers.l2(0.01)))
@@ -99,7 +113,14 @@ class Model(tf.keras.Model):
 
         self.architecture.add(tf.keras.layers.Dense(7, activation='softmax'))
 
-        # ]
+
+        ################################## ARCHITECTURE BLOCK 2 #######################################################
+
+
+        ################################## ARCHITECTURE BLOCK 3 #######################################################
+        # From http://cs231n.stanford.edu/reports/2016/pdfs/005_Report.pdf
+        # Possibly interesting resource? https://arxiv.org/pdf/1612.02903.pdf
+
     
         # self.architecture.append(tf.keras.layers.Conv2D(filters = 64, kernel_size = 3, strides = (1,1), activation = "relu"))
         # #figure out parameters for batch normalization (I think this is what they mean by
@@ -150,45 +171,26 @@ class Model(tf.keras.Model):
 
         # self.architecture.append(tf.keras.layers.Dense(7, activation = "softmax"))
 
+        ################################## ARCHITECTURE BLOCK 3 #######################################################
 
     def call(self, inputs):
-        # txt = open('C:\\Users\\sebla\\OneDrive\\Desktop\\test.txt', 'w')
-
-
-        # for layer in self.architecture:
-        #     inputs = layer(inputs)
-        #     # print("layer name: ", layer.name)
-        #     # print(layer.output)
-        #     # tf.print(inputs, output_stream = "file://C:\\Users\\sebla\\OneDrive\\Desktop\\test.txt")
-        # # txt.close()
-        # # exit(0)
-        # return inputs
         return self.architecture(inputs)
 
 
 
     def loss_fn(self, labels, predictions):
-        # Which loss function to use? Paper uses Categorical crossentropy (from their github repo)
+        #Current preprocessing makes it so labels do not need to be made into a onehot; change if necessary
 
-        # Added one-hot encoding in order to compute loss
-        one_hot = tf.keras.utils.to_categorical(labels)
-        return tf.keras.losses.categorical_crossentropy(one_hot, predictions, from_logits = False) #try binary crossentropy?
+        # one_hot = tf.keras.utils.to_categorical(labels)
+        return tf.keras.losses.categorical_crossentropy(labels, predictions, from_logits = False) #Binary crossentropy referenced by some papers
 
 
     def accuracy_fn(self, labels, probs):
-        
-        #So if if I'm not mistaken, "probs" should be tensor of shape [7, batch_size], where each element [i,j] is the probability that
-        #image j portrays emotion i (the dimensions could be flipped, Im not too sure. Basically all we would have to do is count
-        #the number of "correct" predictions; that is, the amount of images (of which we have batch_size) for which the highest probability
-        #is the correct emotion (which we would get from looking at the corresponding label)
-        
+        #Current preprocessing makes it so labels also needs to be "argmaxed"; change if necessary
+
         highest_prediction_index = np.argmax(probs, axis = 1)
-        amt_correct = np.count_nonzero(labels == highest_prediction_index)
-        # print("Model 2", probs)
+        highest_label_index = np.argmax(labels, axis=1)
+        amt_correct = np.count_nonzero(highest_label_index == highest_prediction_index)
         
         return amt_correct
-        # print(labels.shape)
-        # print(probs.shape)
-        # # exit(0)
-        # return tf.keras.metrics.sparse_categorical_accuracy(labels, probs)
 
