@@ -4,7 +4,7 @@ import hyperparameters as hp
 import os
 def get_data():
     
-    data_dir = '../../../data/' # Change this so it refers to where you have the data
+    data_dir = '../../../../data/' # Change this so it refers to where you have the data
 
     main_dir = os.path.abspath(__file__)
 
@@ -82,6 +82,7 @@ def get_data_for_model2():
 
     X -= np.mean(X, axis=0)
     X /= np.std(X, axis=0)
+s
 
     print("PREPROCESSING DONE!")
     return X,y

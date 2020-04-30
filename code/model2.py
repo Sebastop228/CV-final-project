@@ -20,6 +20,7 @@ class Model(tf.keras.Model):
         self.initializer = tf.keras.initializers.TruncatedNormal(stddev=hp2.stddev)
 
         self.architecture = tf.keras.Sequential()
+
         
         
         ################################## ARCHITECTURE BLOCK 1 #######################################################
@@ -73,6 +74,7 @@ class Model(tf.keras.Model):
 
         # Says accuracy of 66%; was able to obtain 62%
 
+
         self.architecture.add(tf.keras.layers.Conv2D(64, kernel_size=(3, 3), activation='relu', kernel_regularizer=tf.keras.regularizers.l2(0.01)))
         self.architecture.add(tf.keras.layers.Conv2D(64, kernel_size=(3, 3), activation='relu', padding='same'))
         self.architecture.add(tf.keras.layers.BatchNormalization())
@@ -118,6 +120,7 @@ class Model(tf.keras.Model):
         ################################## ARCHITECTURE BLOCK 3 #######################################################
         # From http://cs231n.stanford.edu/reports/2016/pdfs/005_Report.pdf
         # Possibly interesting resource? https://arxiv.org/pdf/1612.02903.pdf
+
     
         # self.architecture.append(tf.keras.layers.Conv2D(filters = 64, kernel_size = 3, strides = (1,1), activation = "relu"))
         # #figure out parameters for batch normalization (I think this is what they mean by
@@ -171,12 +174,6 @@ class Model(tf.keras.Model):
         ################################## ARCHITECTURE BLOCK 3 #######################################################
 
     def call(self, inputs):
-        #Currently using Sequential(); switch to layer if necessary
-
-        # for layer in self.architecture:
-        #     inputs = layer(inputs)
-        # return inputs
-
         return self.architecture(inputs)
 
 
@@ -196,3 +193,4 @@ class Model(tf.keras.Model):
         amt_correct = np.count_nonzero(highest_label_index == highest_prediction_index)
         
         return amt_correct
+
