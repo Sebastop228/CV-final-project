@@ -59,7 +59,6 @@ def get_data_for_model2():
     data_file = open(path)
 
     data = pd.read_csv(data_file)
-    #print(data.shape)
 
 
     datapoints = data['pixels'].tolist()
@@ -78,6 +77,8 @@ def get_data_for_model2():
 
     y = pd.get_dummies(data['emotion']).to_numpy()
 
+    # X /=127.0
+    # X -= 1
 
     X -= np.mean(X, axis=0)
     X /= np.std(X, axis=0)
