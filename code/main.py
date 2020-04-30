@@ -5,7 +5,8 @@ import pandas as pd  # You're going to need to install this
 import csv
 import os
 import argparse
-from model import Model
+#from model import Model
+from model2 import Model
 from preprocess import *
 
 data_dir = '../../../data/' # Change this so it refers to where you have the data
@@ -98,58 +99,171 @@ def test(normalize, model, test_labels, test_images):
 def main():
 
     normalize = False
-
-    if ARGS.normalize_data:
-        normalize = True
-    
-    train_images, train_labels, test_images, test_labels = get_data(normalize)
+    ARGS = parse_args()
 
     model = Model()
-    # Putting input shape here instead
     model(tf.keras.Input(shape=(48, 48, 1)))
+    if not ARGS.live_feed:
 
-    epoch = tf.Variable(0, trainable=False)
-    checkpoint = tf.train.Checkpoint(epoch=epoch, model=model)
-    manager = tf.train.CheckpointManager(checkpoint, './checkpoints', max_to_keep=3)
+        ################# IMPORTANT ############################
+        #If you want to run model 1, be sure to comment back the proper get_data (below) and uncomment 
+        # the one for model 2. Also, be sure to in the header switch to "from model import Model" instead of
+        # "model2 import Model". Lastly, switch all the "hp2"s to "hp"
 
-    if ARGS.load_checkpoint:
-        checkpoint.restore(manager.latest_checkpoint)
-        if manager.latest_checkpoint:
-            print("Restored from {}".format(manager.latest_checkpoint))
+        if ARGS.normalize_data:
+            normalize = True
+        
+        train_images, train_labels, test_images, test_labels = get_data(normalize)
+
+        model = Model()
+        # Putting input shape here instead
+        model(tf.keras.Input(shape=(48, 48, 1)))
+
+        epoch = tf.Variable(0, trainable=False)
+        checkpoint = tf.train.Checkpoint(epoch=epoch, model=model)
+        manager = tf.train.CheckpointManager(checkpoint, './checkpoints', max_to_keep=3)
+
+        if ARGS.load_checkpoint:
+            checkpoint.restore(manager.latest_checkpoint)
+            if manager.latest_checkpoint:
+                print("Restored from {}".format(manager.latest_checkpoint))
+            else:
+                print("Initializing from scratch.")
+
+        augment = False
+
+        if ARGS.augment_data:
+            augment = True
+            normalize = True
+            model.compile(loss='categorical_crossentropy', metrics= ['categorical_accuracy'])
+
+            test_labels = tf.keras.utils.to_categorical(test_labels, num_classes=7)
+            test_images = np.expand_dims(test_images, axis=3)
+
+            for img in test_images:
+                img = pre_process_fn(img)
+
+            validation_data = (test_images, test_labels)
+            train(augment, model, train_labels, train_images, validation_data)
+
+            results = model.evaluate(test_images, test_labels, batch_size=hp.batch_size)
+            print('test loss, test acc:', results)
+
         else:
-            print("Initializing from scratch.")
+            for i in range(epoch.numpy(), hp.num_epochs, 1):
+                train(augment, model, train_labels, train_images)
+                accuracy = test(normalize, model, test_labels, test_images)
+                if i % 4 == 3:
+                    epoch.assign(i + 1)
+                    save_path = manager.save()
+                    print("Saved checkpoint for epoch {}: {}".format(i, save_path))
 
-    augment = False
+                print("Epoch ", i, " accuracy is ", accuracy)
 
-    if ARGS.augment_data:
-        augment = True
-        normalize = True
-        model.compile(loss='categorical_crossentropy', metrics= ['categorical_accuracy'])
+        model.save_weights('model.h5')
+    
+    elif ARGS.live_feed:
+        print("Doing emotion recognition from live-feed!")
 
-        test_labels = tf.keras.utils.to_categorical(test_labels, num_classes=7)
-        test_images = np.expand_dims(test_images, axis=3)
+        #based off of https://github.com/atulapra/Emotion-detection/blob/master/src/emotions.py
+        #and https://realpython.com/face-detection-in-python-using-a-webcam/
+        model.load_weights('model.h5')
 
-        for img in test_images:
-            img = pre_process_fn(img)
+        model.compile(model.optimizer, loss = model.loss_fn)
 
-        validation_data = (test_images, test_labels)
-        train(augment, model, train_labels, train_images, validation_data)
+        # prevents openCL usage and unnecessary logging messages
+        cv2.ocl.setUseOpenCL(False)
 
-        results = model.evaluate(test_images, test_labels, batch_size=hp.batch_size)
-        print('test loss, test acc:', results)
+        # dictionary which assigns each label an emotion (alphabetical order)
+        emotions = {0: "Angry", 1: "Disgusted", 2: "Fearful", 3: "Happy", 4: "Neutral", 5: "Sad", 6: "Surprised"}
 
-    else:
-        for i in range(epoch.numpy(), hp.num_epochs, 1):
-            train(augment, model, train_labels, train_images)
-            accuracy = test(normalize, model, test_labels, test_images)
-            if i % 4 == 3:
-                epoch.assign(i + 1)
-                save_path = manager.save()
-                print("Saved checkpoint for epoch {}: {}".format(i, save_path))
+        path = "haarcascade_frontalface_default.xml"
+        faceCascade = cv2.CascadeClassifier(path)
+        feed = cv2.VideoCapture(0)
 
-            print("Epoch ", i, " accuracy is ", accuracy)
+        while True:
+            #read frame-by-frame
+            ret, frame = feed.read()
 
-ARGS = parse_args()
+            #convert to grayscale
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+            #detect face
+            faces = faceCascade.detectMultiScale(
+                gray,
+                scaleFactor=1.1,
+                minNeighbors=5,
+                minSize=(30, 30),
+                flags=cv2.CASCADE_SCALE_IMAGE
+            )
+
+            for (x, y, w, h) in faces:
+                # Draw a rectangle around the faces
+                cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+                roi_gray = gray[y:y + h, x:x + w]
+                cropped_img = np.expand_dims(np.expand_dims(cv2.resize(roi_gray, (48, 48)), -1), 0)
+                prediction = model.predict(cropped_img)
+                maxindex = int(np.argmax(prediction))
+                cv2.putText(frame, emotions[maxindex], (x+20, y-60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+
+            cv2.imshow('Video', cv2.resize(frame,(1600,960),interpolation = cv2.INTER_CUBIC))
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+
+        feed.release()
+        cv2.destroyAllWindows()
+
+
+    
+
+    #based off of https://github.com/atulapra/Emotion-detection/blob/master/src/emotions.py
+    #and https://realpython.com/face-detection-in-python-using-a-webcam/
+    #put in proper spot
+    #put in correct filepath
+    model.load_weights()
+
+    # prevents openCL usage and unnecessary logging messages
+    cv2.ocl.setUseOpenCL(False)
+
+    # dictionary which assigns each label an emotion (alphabetical order)
+    emotions = {0: "Angry", 1: "Disgusted", 2: "Fearful", 3: "Happy", 4: "Neutral", 5: "Sad", 6: "Surprised"}
+
+    path = "haarcascade_frontalface_default.xml"
+    faceCascade = cv2.CascadeClassifier(path)
+    feed = cv2.VideoCapture(0)
+
+    while True:
+        #read frame-by-frame
+        ret, frame = feed.read()
+
+        #convert to grayscale
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+        #detect face
+        faces = faceCascade.detectMultiScale(
+            gray,
+            scaleFactor=1.1,
+            minNeighbors=5,
+            minSize=(30, 30),
+            flags=cv2.cv.CV_HAAR_SCALE_IMAGE
+        )
+
+        for (x, y, w, h) in faces:
+            # Draw a rectangle around the faces
+            cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+            roi_gray = gray[y:y + h, x:x + w]
+            cropped_img = np.expand_dims(np.expand_dims(cv2.resize(roi_gray, (48, 48)), -1), 0)
+            prediction = model.predict(cropped_img)
+            maxindex = int(np.argmax(prediction))
+            cv2.putText(frame, emotions[maxindex], (x+20, y-60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+
+        cv2.imshow('Video', cv2.resize(frame,(1600,960),interpolation = cv2.INTER_CUBIC))
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    feed.release()
+    cv2.destroyAllWindows()
+
 
 if __name__ == '__main__':
     main()
