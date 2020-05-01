@@ -68,8 +68,29 @@ def get_data(normalize):
     # Performing data normalization
     if normalize:
 
-        for i in range(len(train_images)):
-            train_images[i] = pre_process_fn(train_images[i])
+        for img in train_images:
+            img = pre_process_fn(img)
+
+        test_images = normalize_test(test_images)
+            
+        # train_images = pre_process_fn(train_images)
+
+    # train_images = np.expand_dims(train_images, -1)
+    # test_images = np.expand_dims(test_images, -1)
+    print("PREPROCESSING DONE!")
+    return train_images, train_labels, test_images, test_labels
+
+
+
+# def get_data(normalize):
+#     print("PREPROCESSING...")
+    
+#     global mean
+#     global stdev
+
+#     data_dir = '../../../../data/' # Change this so it refers to where you have the data
+
+#     main_dir = os.path.abspath(__file__)
 
 
     return train_images, train_labels, test_images, test_labels
@@ -88,3 +109,13 @@ def pre_process_fn(img):
     standardize(img)
 
     return img
+
+def normalize_test(test_images):
+    test_mean = np.mean(test_images / 255., axis=(0,1,2))
+    test_std = np.std(test_images / 255., axis=(0,1,2))
+
+    for img in test_images:
+        img /= 255.
+        img = (img - test_mean) / test_std
+    
+    return test_images
