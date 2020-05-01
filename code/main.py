@@ -182,7 +182,7 @@ def main():
             train(augment, model, train_labels, train_images, validation_data)
 
             #results = model.evaluate(test_images, test_labels, batch_size=model.batch_size)
-            results = test(model, train_labels, train_images)
+            results = test(model, test_labels, test_images)
             print('test loss, test acc:', results)
             
 
