@@ -1,8 +1,17 @@
 import numpy as np
 import pandas as pd
 import os
-def get_data():
-    
+
+
+mean = np.zeros(3,)
+stdev = np.zeros(3,)
+
+
+def get_data(normalize):
+
+    global mean
+    global stdev
+    print("PREPROCESSING...")
     data_dir = '../../../../data/' # Change this so it refers to where you have the data
 
     main_dir = os.path.abspath(__file__)
@@ -12,76 +21,117 @@ def get_data():
     data_file = open(path)
 
     data = pd.read_csv(data_file).values
-
+    #print(data.shape)
 
     train_data = np.array([lst for lst in data if lst[2] == 'Training'])
-    #print(train_data.shape)
 
     test_data = np.array([lst for lst in data if lst[2] == 'PublicTest'
                 or lst[2] == 'PrivateTest'])
-    #print(test_data.shape)
     
     train_images = np.array([np.array([np.float32(x) for x in img.split(' ')]).reshape(48,48) 
                         for img in train_data[:,1]])
     print("got training images")
-    # print(train_images.shape)
-    train_images -= np.mean(train_images, axis=0)
-    train_images /= np.std(train_images, axis=0)
     
     test_images = np.array([np.array([np.float32(x) for x in img.split(' ')]).reshape(48,48) 
                         for img in test_data[:,1]])
 
     print("got testing images")
-    # print(test_images.shape)
 
     train_labels = np.array([np.float32(x) for x in train_data[:,0]])
     print("got training labels")
-    # print(train_labels.shape)
 
 
     test_labels = np.array([np.float32(x) for x in test_data[:,0]])
     print("got testing labels")
-    # print(test_labels.shape)
 
+    train_images_scaled = train_images / 255.
+
+    mean = np.mean(train_images_scaled, axis=(0,1,2))
+    stdev = np.std(train_images_scaled, axis=(0,1,2))
+
+    print("got mean and std")
+
+    print("Dataset mean: ", mean)
+
+    print("Dataset std: ", stdev)
+
+    # Performing data normalization
+    if normalize:
+
+        for i in range(len(train_images)):
+            train_images[i] = pre_process_fn(train_images[i])
+        # train_images = pre_process_fn(train_images)
+
+    # train_images = np.expand_dims(train_images, -1)
+    # test_images = np.expand_dims(test_images, -1)
+    print("PREPROCESSING DONE!")
     return train_images, train_labels, test_images, test_labels
 
 
 
-def get_data_for_model2():
-    print("PREPROCESSING FOR MODEL 2")
-    data_dir = '../../../data/' # Change this so it refers to where you have the data
+# def get_data(normalize):
+#     print("PREPROCESSING...")
+    
+#     global mean
+#     global stdev
 
-    main_dir = os.path.abspath(__file__)
+#     data_dir = '../../../../data/' # Change this so it refers to where you have the data
 
-    path = os.path.normpath(main_dir + data_dir + 'fer2013.csv')
+#     main_dir = os.path.abspath(__file__)
 
-    data_file = open(path)
+#     path = os.path.normpath(main_dir + data_dir + 'fer2013.csv')
 
-    data = pd.read_csv(data_file)
+#     data_file = open(path)
+
+#     data = pd.read_csv(data_file)
 
 
-    datapoints = data['pixels'].tolist()
+#     datapoints = data['pixels'].tolist()
 
 
-    X=[]
+#     images = []
+#     for xseq in datapoints:
+#         xx = [int(xp) for xp in xseq.split(' ')]
+#         xx = np.asarray(xx).reshape(48, 48)
+#         images.append(xx.astype('float32'))
 
-    X = []
-    for xseq in datapoints:
-        xx = [int(xp) for xp in xseq.split(' ')]
-        xx = np.asarray(xx).reshape(48, 48)
-        X.append(xx.astype('float32'))
+#     images = np.asarray(images)
 
-    X = np.asarray(X)
-    X = np.expand_dims(X, -1)
 
-    y = pd.get_dummies(data['emotion']).to_numpy()
+#     labels = pd.get_dummies(data['emotion']).to_numpy()
 
-    # X /=127.0
-    # X -= 1
+#     images_scaled = images / 255.0
 
-    X -= np.mean(X, axis=0)
-    X /= np.std(X, axis=0)
-s
+#     mean = np.mean(images_scaled, axis=(0,1,2))
+#     stdev = np.std(images_scaled, axis=(0,1,2))
 
-    print("PREPROCESSING DONE!")
-    return X,y
+#     print("Got mean and std!")
+
+#     print("Dataset mean: ", mean)
+
+#     print("Dataset std: ", stdev)
+
+#     if normalize:
+#         print("Normalizing...")
+#         images = pre_process_fn(images)
+
+#     images = np.expand_dims(images, -1)
+
+
+#     print("PREPROCESSING DONE!")
+#     return images, labels
+
+def standardize(img):
+
+    global mean
+    global stdev
+
+    img = (img - mean) / stdev
+
+    return img
+
+def pre_process_fn(img):
+    img /= 255.
+    standardize(img)
+
+    return img

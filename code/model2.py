@@ -1,5 +1,6 @@
 import tensorflow as tf 
 import numpy as np
+# from tf.keras.layers import Dense, Dropout, Flatten, MaxPool2D, BatchNormalization, Activation
 
 #architecture sourced from http://cs231n.stanford.edu/reports/2016/pdfs/005_Report.pdf
 
@@ -11,11 +12,26 @@ class Model(tf.keras.Model):
         tf.keras.backend.set_floatx('float32')
 
 
-        self.optimizer = tf.keras.optimizers.Adam(learning_rate = hp2.learning_rate, beta_1 = 0.9, beta_2 = 0.999) #, decay = hp2.decay)
+        #################### HYPERPARAMETERS #############
+        self.batch_size = 128
+
+        self.learning_rate = 0.001
+
+        self.num_epochs = 100
+
+        self.stddev = 0.1
+
+        self.decay = 1e-7
+
+        self.percent_training = 0.8
+        #################### HYPERPARAMETERS #############
+
+
+        self.optimizer = tf.keras.optimizers.Adam(learning_rate = self.learning_rate, beta_1 = 0.9, beta_2 = 0.999) #, decay = self.decay)
         
         #They don't use a kernel initializer in their github code, but we could play around with that.
         #Also for some reason some of the conv layers have same padding and some have valid?
-        self.initializer = tf.keras.initializers.TruncatedNormal(stddev=hp2.stddev)
+        self.initializer = tf.keras.initializers.TruncatedNormal(stddev=self.stddev)
 
         self.architecture = tf.keras.Sequential()
 
@@ -191,7 +207,3 @@ class Model(tf.keras.Model):
         amt_correct = np.count_nonzero(highest_label_index == highest_prediction_index)
         
         return amt_correct
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes

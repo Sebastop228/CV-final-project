@@ -4,19 +4,35 @@ import numpy as np
 
 #Found the paper github repo: https://github.com/akashsara/emotion-recognition
 
-class Model(tf.keras.Model):
+class first_Model(tf.keras.Model):
     def __init__(self):
-        super(Model, self).__init__()
+        super(first_Model, self).__init__()
 
         # Do we want to use float32 or float64??
         tf.keras.backend.set_floatx('float32')
 
 
-        self.optimizer = tf.keras.optimizers.Adam(learning_rate = hp.learning_rate, decay = hp.decay)
+        #################### HYPERPARAMETERS #############
+
+        self.batch_size = 128
+
+        self.learning_rate = 0.0001
+
+        self.num_epochs = 24
+
+        self.stddev = 0.1
+
+        self.decay = 10e-6
+
+        self.percent_training = 0.8
+
+        #################### HYPERPARAMETERS #############
+
+        self.optimizer = tf.keras.optimizers.Adam(learning_rate = self.learning_rate, decay = self.decay)
         
         #They don't use a kernel initializer in their github code, but we could play around with that.
         #Also for some reason some of the conv layers have same padding and some have valid?
-        self.initializer = tf.keras.initializers.TruncatedNormal(stddev=hp.stddev)
+        self.initializer = tf.keras.initializers.TruncatedNormal(stddev=self.stddev)
 
         #self.architecture = tf.keras.Sequential()
         self.architecture = []
@@ -55,9 +71,9 @@ class Model(tf.keras.Model):
 
 
     def call(self, inputs):
-        print("MODEL 1")
         for layer in self.architecture:
             inputs = layer(inputs)
+
         return inputs
 
 
@@ -66,22 +82,15 @@ class Model(tf.keras.Model):
         # Which loss function to use? Paper uses Categorical crossentropy (from their github repo)
 
         # Added one-hot encoding in order to compute loss
-        one_hot = tf.keras.utils.to_categorical(labels)
-        return tf.keras.losses.categorical_crossentropy(one_hot, predictions, from_logits = False)
+        # one_hot = tf.keras.utils.to_categorical(labels)
+        return tf.keras.losses.categorical_crossentropy(labels, predictions, from_logits = False)
 
 
     def accuracy_fn(self, labels, probs):
         
-        #So if if I'm not mistaken, "probs" should be tensor of shape [7, batch_size], where each element [i,j] is the probability that
-        #image j portrays emotion i (the dimensions could be flipped, Im not too sure. Basically all we would have to do is count
-        #the number of "correct" predictions; that is, the amount of images (of which we have batch_size) for which the highest probability
-        #is the correct emotion (which we would get from looking at the corresponding label)
         
-        # print("LABEL IS ", labels)
-        # print("LABEL SHAPE IS ", labels.shape)
         highest_prediction_index = np.argmax(probs, axis = 1)
-        amt_correct = np.count_nonzero(labels == highest_prediction_index)
-        # print("AMT CORRECT IS ", amt_correct)
-        #exit(0)
-        # print(probs)
+        highest_label_index = np.argmax(labels, axis=1)
+        amt_correct = np.count_nonzero(highest_label_index == highest_prediction_index)
+        
         return amt_correct
