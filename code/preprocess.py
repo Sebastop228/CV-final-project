@@ -2,12 +2,14 @@ import numpy as np
 import pandas as pd
 import os
 
-
+#Global mean and stdev variables
 mean = np.zeros(3,)
 stdev = np.zeros(3,)
 
 
 def get_data(normalize):
+
+    """ Get the data and preprocess it """
 
     global mean
     global stdev
@@ -21,7 +23,6 @@ def get_data(normalize):
     data_file = open(path)
 
     data = pd.read_csv(data_file).values
-    #print(data.shape)
 
     train_data = np.array([lst for lst in data if lst[2] == 'Training'])
 
@@ -34,7 +35,6 @@ def get_data(normalize):
     
     test_images = np.array([np.array([np.float32(x) for x in img.split(' ')]).reshape(48,48) 
                         for img in test_data[:,1]])
-
     print("got testing images")
 
     train_labels = np.array([np.float32(x) for x in train_data[:,0]])
@@ -57,10 +57,8 @@ def get_data(normalize):
 
     # Performing data normalization
     if normalize:
-
         for i in range(len(train_images)):
             train_images[i] = pre_process_fn(train_images[i])
-        # train_images = pre_process_fn(train_images)
 
     # train_images = np.expand_dims(train_images, -1)
     # test_images = np.expand_dims(test_images, -1)
@@ -123,6 +121,8 @@ def get_data(normalize):
 
 def standardize(img):
 
+    """ A method to standardize the images """
+
     global mean
     global stdev
 
@@ -131,6 +131,9 @@ def standardize(img):
     return img
 
 def pre_process_fn(img):
+
+    """A method to preprocess the images """
+
     img /= 255.
     standardize(img)
 
