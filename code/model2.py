@@ -1,7 +1,5 @@
 import tensorflow as tf 
 import numpy as np
-import hyperparameters2 as hp2
-# from tf.keras.layers import Dense, Dropout, Flatten, MaxPool2D, BatchNormalization, Activation
 
 #architecture sourced from http://cs231n.stanford.edu/reports/2016/pdfs/005_Report.pdf
 

@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import hyperparameters as hp
 import os
 def get_data():
     
