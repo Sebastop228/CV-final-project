@@ -1,16 +1,15 @@
 import tensorflow as tf 
 import numpy as np
-# from tf.keras.layers import Dense, Dropout, Flatten, MaxPool2D, BatchNormalization, Activation
-
 #architecture sourced from http://cs231n.stanford.edu/reports/2016/pdfs/005_Report.pdf
 
 class Model(tf.keras.Model):
+    
+    """ Our second emotion recognition architecture model """
+
     def __init__(self):
         super(Model, self).__init__()
 
-        # Do we want to use float32 or float64??
         tf.keras.backend.set_floatx('float32')
-
 
         #################### HYPERPARAMETERS #############
         self.batch_size = 128
@@ -26,16 +25,12 @@ class Model(tf.keras.Model):
         self.percent_training = 0.8
         #################### HYPERPARAMETERS #############
 
-
         self.optimizer = tf.keras.optimizers.Adam(learning_rate = self.learning_rate, beta_1 = 0.9, beta_2 = 0.999) #, decay = self.decay)
         
-        #They don't use a kernel initializer in their github code, but we could play around with that.
-        #Also for some reason some of the conv layers have same padding and some have valid?
+        #No initializer was used in the code in the above github repo
         self.initializer = tf.keras.initializers.TruncatedNormal(stddev=self.stddev)
 
         self.architecture = tf.keras.Sequential()
-
-        
         
         ################################## ARCHITECTURE BLOCK 1 #######################################################
         #Could not get to work due to only returning one-hots. Paper says 65% accuracy
@@ -188,19 +183,23 @@ class Model(tf.keras.Model):
         ################################## ARCHITECTURE BLOCK 3 #######################################################
 
     def call(self, inputs):
+
+        """ A method to return the architecture """
+
         return self.architecture(inputs)
 
 
 
     def loss_fn(self, labels, predictions):
-        #Current preprocessing makes it so labels do not need to be made into a onehot; change if necessary
 
-        # one_hot = tf.keras.utils.to_categorical(labels)
+        """ A loss function for the model """
+
         return tf.keras.losses.categorical_crossentropy(labels, predictions, from_logits = False) #Binary crossentropy referenced by some papers
 
 
     def accuracy_fn(self, labels, probs):
-        #Current preprocessing makes it so labels also needs to be "argmaxed"; change if necessary
+
+        """ A method to compute accuracy """
 
         highest_prediction_index = np.argmax(probs, axis = 1)
         highest_label_index = np.argmax(labels, axis=1)

@@ -1,6 +1,6 @@
 import tensorflow as tf 
 import numpy as np
-import pandas as pd  # You're going to need to install this
+import pandas as pd 
 import csv
 import os
 import argparse
@@ -9,8 +9,8 @@ from model2 import Model
 from model import first_Model
 from preprocess import *
 
-
 def parse_args():
+    
     """ Perform command-line argument parsing. """
 
     parser = argparse.ArgumentParser(
@@ -42,11 +42,12 @@ def parse_args():
     return parser.parse_args()
 
 def train(augment, model, train_labels, train_images, validation_data):
+    
+    """ Train the model on the training set of images """
 
+    #if one of the command lines includes data augmentation
     if augment:
-
         train_images = np.expand_dims(train_images, axis=3)
-
         datagen = tf.keras.preprocessing.image.ImageDataGenerator(
                     preprocessing_function = pre_process_fn,
                     rotation_range=20,
@@ -54,13 +55,12 @@ def train(augment, model, train_labels, train_images, validation_data):
                     #height_shift_range=0.2,
                     #horizontal_flip=True
                     )
-
         train_labels = tf.keras.utils.to_categorical(train_labels, num_classes=7)
+        
         model.fit(datagen.flow(train_images, train_labels, batch_size=model.batch_size),
                     steps_per_epoch=len(train_images) / model.batch_size, 
                     epochs=model.num_epochs,
                     validation_data= validation_data)
-
     else:
 
         #amt_to_train = train_images.shape[0]
@@ -86,6 +86,64 @@ def train(augment, model, train_labels, train_images, validation_data):
                   epochs=model.num_epochs,
                   validation_data= validation_data)
 
+
+
+def test(model, test_labels, test_images):
+    
+    """" Test the trained model on a set of test images """
+    #if normalize:
+        #test_images /= 255.
+        #mean = np.mean(test_images, axis=(0,1,2))
+        #stdev = np.std(test_images, axis=(0,1,2))
+
+        #test_images = (test_images - mean) / stdev
+    
+    #amt_to_test = test_images.shape[0]
+    #batch_size = model.batch_size
+    #amt_correct = 0
+    #for i in range(0, amt_to_test, batch_size):
+        #batch_images = test_images[i:min(i+batch_size, amt_to_test)]
+        #batch_labels = test_labels[i:min(i+batch_size, amt_to_test)]
+        #batch_images = np.expand_dims(batch_images, axis=3) # NOT NECESSARY FOR MODEL 2
+        #probs = model.call(batch_images)
+        #batch_labels = tf.keras.utils.to_categorical(batch_labels, num_classes=7)
+        #amt_correct += model.accuracy_fn(batch_labels, probs)
+    #return amt_correct/amt_to_test
+
+    model.evaluate(test_images, test_labels, batch_size=model.batch_size)
+
+
+def main():
+    """ Run the program give command-line arguments """
+
+    if ARGS.first_model:
+        print("Using model 1!")
+        model = first_Model()
+    else:
+        print("Using model 2!")
+        model = Model()
+
+    model(tf.keras.Input(shape=(48, 48, 1)))
+
+    #if not running the live feed
+    if not ARGS.live_feed:
+        normalize = False
+        augment = False
+        if ARGS.normalize_data:
+            normalize = True
+
+        train_images, train_labels, test_images, test_labels = get_data(normalize)
+        # train_images, test_images, train_labels, test_labels = train_test_split(images, labels, test_size=0.2, random_state=42)
+        epoch = tf.Variable(0, trainable=False)
+        checkpoint = tf.train.Checkpoint(epoch=epoch, model=model)
+        manager = tf.train.CheckpointManager(checkpoint, './checkpoints', max_to_keep=3)
+
+        if ARGS.load_checkpoint:
+            checkpoint.restore(manager.latest_checkpoint)
+            if manager.latest_checkpoint:
+                print("Restored from {}".format(manager.latest_checkpoint))
+            else:
+                print("Initializing from scratch.")
 
 
 def test(model, test_labels, test_images):
@@ -145,20 +203,19 @@ def main():
 
         if ARGS.augment_data:
             augment = True
+
             model.compile(loss='categorical_crossentropy', metrics= ['categorical_accuracy'])
 
             test_labels = tf.keras.utils.to_categorical(test_labels, num_classes=7)
-
             test_images = normalize_test(test_images)
             test_images = np.expand_dims(test_images, axis=3)
 
-
             validation_data = (test_images, test_labels)
+
             train(augment, model, train_labels, train_images, validation_data)
 
             #results = model.evaluate(test_images, test_labels, batch_size=model.batch_size)
             test(model, test_labels, test_images)
-
         else:
 
 
@@ -184,7 +241,6 @@ def main():
             #results = model.evaluate(test_images, test_labels, batch_size=model.batch_size)
             test(model, test_labels, test_images)
             
-
         model.save_weights('model.h5')
     
     elif ARGS.live_feed:
@@ -231,6 +287,7 @@ def main():
                 maxindex = int(np.argmax(prediction))
                 cv2.putText(frame, emotions[maxindex], (x+20, y-60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
 
+            #display the results of emotion recognition
             cv2.imshow('Video', cv2.resize(frame,(1600,960),interpolation = cv2.INTER_CUBIC))
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
