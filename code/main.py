@@ -173,6 +173,7 @@ def main():
                     #print("Saved checkpoint for epoch {}: {}".format(i, save_path))
 
                 #print("Epoch ", i, " accuracy is ", accuracy)
+            model.compile(loss='categorical_crossentropy', metrics= ['categorical_accuracy'])
 
             test_labels = tf.keras.utils.to_categorical(test_labels, num_classes=7)
             test_images = np.expand_dims(test_images, axis=3)
