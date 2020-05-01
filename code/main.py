@@ -54,50 +54,61 @@ def train(augment, model, train_labels, train_images, validation_data):
                     #height_shift_range=0.2,
                     #horizontal_flip=True
                     )
+
         train_labels = tf.keras.utils.to_categorical(train_labels, num_classes=7)
-        model.fit(datagen.flow(train_images, train_labels, batch_size=model.batch_size),
-                    steps_per_epoch=len(train_images) / model.batch_size, epochs=model.num_epochs,
+        model.fit(datagen.flow(train_images, train_labels, batch_size=hp.batch_size),
+                    steps_per_epoch=len(train_images) / hp.batch_size, epochs=hp.num_epochs,
                     validation_data= validation_data)
 
     else:
 
-        amt_to_train = train_images.shape[0]
-        batch_size = model.batch_size 
+        #amt_to_train = train_images.shape[0]
+        #batch_size = model.batch_size 
 
-        for i in range(0, amt_to_train, batch_size):
+        #for i in range(0, amt_to_train, batch_size):
             # indexed into the arrays so that, for the last batch, i+batch_size doesn't go over the size of the array
-            batch_images = train_images[i:min(i+batch_size, amt_to_train)]
-            batch_labels = train_labels[i:min(i+batch_size, amt_to_train)]
-            with tf.GradientTape() as tape:
-                batch_images = np.expand_dims(batch_images, axis=3) # NOT NECESSARY FOR MODEL 2
-                probs = model.call(batch_images)
-                batch_labels = tf.keras.utils.to_categorical(batch_labels, num_classes=7)
-                loss = model.loss_fn(batch_labels, probs)
-            gradients = tape.gradient(loss, model.trainable_variables)
-            model.optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+            #batch_images = train_images[i:min(i+batch_size, amt_to_train)]
+            #batch_labels = train_labels[i:min(i+batch_size, amt_to_train)]
+            #with tf.GradientTape() as tape:
+                #batch_images = np.expand_dims(batch_images, axis=3) # NOT NECESSARY FOR MODEL 2
+                #probs = model.call(batch_images)
+                #batch_labels = tf.keras.utils.to_categorical(batch_labels, num_classes=7)
+                #loss = model.loss_fn(batch_labels, probs)
+            #gradients = tape.gradient(loss, model.trainable_variables)
+            #model.optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+
+        train_images = np.expand_dims(train_images, axis=3)
+        train_labels = tf.keras.utils.to_categorical(train_labels, num_classes=7)
+
+        model.fit(train_images, train_labels, batch_size=model.batch_size,
+                  steps_per_epoch=len(train_images) / model.batch_size, 
+                  epochs=model.num_epochs,
+                  validation_data= validation_data)
 
 
 
-def test(normalize, model, test_labels, test_images):
+def test(model, test_labels, test_images):
     
-    if normalize:
-        test_images /= 255.
-        mean = np.mean(test_images, axis=(0,1,2))
-        stdev = np.std(test_images, axis=(0,1,2))
+    #if normalize:
+        #test_images /= 255.
+        #mean = np.mean(test_images, axis=(0,1,2))
+        #stdev = np.std(test_images, axis=(0,1,2))
 
-        test_images = (test_images - mean) / stdev
+        #test_images = (test_images - mean) / stdev
     
-    amt_to_test = test_images.shape[0]
-    batch_size = model.batch_size
-    amt_correct = 0
-    for i in range(0, amt_to_test, batch_size):
-        batch_images = test_images[i:min(i+batch_size, amt_to_test)]
-        batch_labels = test_labels[i:min(i+batch_size, amt_to_test)]
-        batch_images = np.expand_dims(batch_images, axis=3) # NOT NECESSARY FOR MODEL 2
-        probs = model.call(batch_images)
-        batch_labels = tf.keras.utils.to_categorical(batch_labels, num_classes=7)
-        amt_correct += model.accuracy_fn(batch_labels, probs)
-    return amt_correct/amt_to_test
+    #amt_to_test = test_images.shape[0]
+    #batch_size = model.batch_size
+    #amt_correct = 0
+    #for i in range(0, amt_to_test, batch_size):
+        #batch_images = test_images[i:min(i+batch_size, amt_to_test)]
+        #batch_labels = test_labels[i:min(i+batch_size, amt_to_test)]
+        #batch_images = np.expand_dims(batch_images, axis=3) # NOT NECESSARY FOR MODEL 2
+        #probs = model.call(batch_images)
+        #batch_labels = tf.keras.utils.to_categorical(batch_labels, num_classes=7)
+        #amt_correct += model.accuracy_fn(batch_labels, probs)
+    #return amt_correct/amt_to_test
+
+    model.evaluate(test_images, test_labels, batch_size=model.batch_size)
 
 
 def main():
@@ -132,38 +143,47 @@ def main():
                 print("Initializing from scratch.")
 
         if ARGS.augment_data:
-            print("Training with Data Augmentation!")
             augment = True
-            normalize = True
             model.compile(loss='categorical_crossentropy', metrics= ['categorical_accuracy'])
 
             test_labels = tf.keras.utils.to_categorical(test_labels, num_classes=7)
-            # train_labels = tf.keras.utils.to_categorical(train_labels, num_classes=7)
+
+            test_images = normalize_test(test_images)
             test_images = np.expand_dims(test_images, axis=3)
-            
-            for img in test_images:
-                img = pre_process_fn(img)
+
 
             validation_data = (test_images, test_labels)
             train(augment, model, train_labels, train_images, validation_data)
 
-            results = model.evaluate(test_images, test_labels, batch_size=model.batch_size)
+            #results = model.evaluate(test_images, test_labels, batch_size=model.batch_size)
+            results = test(model, test_labels, test_images)
             print('test loss, test acc:', results)
 
         else:
 
 
-            for i in range(epoch.numpy(), model.num_epochs, 1):
-                print("Training for epoch ", i, "out of ", model.num_epochs)
-                train(augment, model, train_labels, train_images, [])
-                print("Testing for epoch ", i, "out of ", model.num_epochs)
-                accuracy = test(normalize, model, test_labels, test_images)
-                if i % 4 == 3:
-                    epoch.assign(i + 1)
-                    save_path = manager.save()
-                    print("Saved checkpoint for epoch {}: {}".format(i, save_path))
+            #for i in range(epoch.numpy(), model.num_epochs, 1):
+                #print("Training for epoch ", i, "out of ", model.num_epochs)
+                #train(augment, model, train_labels, train_images, [])
+                #print("Testing for epoch ", i, "out of ", model.num_epochs)
+                #accuracy = test(normalize, model, test_labels, test_images)
+                #if i % 4 == 3:
+                    #epoch.assign(i + 1)
+                    #save_path = manager.save()
+                    #print("Saved checkpoint for epoch {}: {}".format(i, save_path))
 
-                print("Epoch ", i, " accuracy is ", accuracy)
+                #print("Epoch ", i, " accuracy is ", accuracy)
+
+            test_labels = tf.keras.utils.to_categorical(test_labels, num_classes=7)
+            test_images = np.expand_dims(test_images, axis=3)
+
+            validation_data = (test_images, test_labels)
+            train(augment, model, train_labels, train_images, validation_data)
+
+            #results = model.evaluate(test_images, test_labels, batch_size=model.batch_size)
+            results = test(model, train_labels, train_images)
+            print('test loss, test acc:', results)
+            
 
         model.save_weights('model.h5')
     
