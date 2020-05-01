@@ -75,7 +75,6 @@ def train(augment, model, train_labels, train_images, validation_data):
                   validation_data= validation_data)
 
 
-
 def test(model, test_labels, test_images):
     
     #if normalize:
