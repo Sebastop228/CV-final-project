@@ -145,62 +145,6 @@ def main():
             else:
                 print("Initializing from scratch.")
 
-
-def test(model, test_labels, test_images):
-    
-    #if normalize:
-        #test_images /= 255.
-        #mean = np.mean(test_images, axis=(0,1,2))
-        #stdev = np.std(test_images, axis=(0,1,2))
-
-        #test_images = (test_images - mean) / stdev
-    
-    #amt_to_test = test_images.shape[0]
-    #batch_size = model.batch_size
-    #amt_correct = 0
-    #for i in range(0, amt_to_test, batch_size):
-        #batch_images = test_images[i:min(i+batch_size, amt_to_test)]
-        #batch_labels = test_labels[i:min(i+batch_size, amt_to_test)]
-        #batch_images = np.expand_dims(batch_images, axis=3) # NOT NECESSARY FOR MODEL 2
-        #probs = model.call(batch_images)
-        #batch_labels = tf.keras.utils.to_categorical(batch_labels, num_classes=7)
-        #amt_correct += model.accuracy_fn(batch_labels, probs)
-    #return amt_correct/amt_to_test
-
-    model.evaluate(test_images, test_labels, batch_size=model.batch_size)
-
-
-def main():
-
-    if ARGS.first_model:
-        print("Using model 1!")
-        model = first_Model()
-    else:
-        print("Using model 2!")
-        model = Model()
-    model(tf.keras.Input(shape=(48, 48, 1)))
-    if not ARGS.live_feed:
-
-        normalize = False
-        augment = False
-
-        if ARGS.normalize_data:
-            normalize = True
-
-        train_images, train_labels, test_images, test_labels = get_data(normalize)
-        # train_images, test_images, train_labels, test_labels = train_test_split(images, labels, test_size=0.2, random_state=42)
-
-        epoch = tf.Variable(0, trainable=False)
-        checkpoint = tf.train.Checkpoint(epoch=epoch, model=model)
-        manager = tf.train.CheckpointManager(checkpoint, './checkpoints', max_to_keep=3)
-
-        if ARGS.load_checkpoint:
-            checkpoint.restore(manager.latest_checkpoint)
-            if manager.latest_checkpoint:
-                print("Restored from {}".format(manager.latest_checkpoint))
-            else:
-                print("Initializing from scratch.")
-
         if ARGS.augment_data:
             augment = True
 
