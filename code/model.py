@@ -1,6 +1,5 @@
 import tensorflow as tf 
 import numpy as np
-import hyperparameters as hp
 
 
 #Found the paper github repo: https://github.com/akashsara/emotion-recognition

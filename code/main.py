@@ -1,6 +1,5 @@
 import tensorflow as tf 
 import numpy as np
-import hyperparameters as hp
 import pandas as pd  # You're going to need to install this
 import csv
 import os
