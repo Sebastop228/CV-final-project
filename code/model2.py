@@ -191,4 +191,7 @@ class Model(tf.keras.Model):
         amt_correct = np.count_nonzero(highest_label_index == highest_prediction_index)
         
         return amt_correct
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
