@@ -227,9 +227,17 @@ def main():
                 cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
                 roi_gray = gray[y:y + h, x:x + w]
                 cropped_img = np.expand_dims(np.expand_dims(cv2.resize(roi_gray, (48, 48)), -1), 0)
-                prediction = model.predict(cropped_img)
-                maxindex = int(np.argmax(prediction))
-                cv2.putText(frame, emotions[maxindex], (x+20, y-60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+                prediction = model.predict(cropped_img)[0]
+                sorted_prediction = np.argsort(-prediction)
+                maxindex = int(sorted_prediction[0])
+                second_index = int(sorted_prediction[1])
+                third_index = int(sorted_prediction[2])
+                emotion1 = emotions[maxindex] + ": " + str(prediction[maxindex])
+                emotion2 = emotions[second_index] + ": " + str(prediction[second_index])
+                emotion3 = emotions[third_index] + ": " + str(prediction[third_index])
+                cv2.putText(frame, emotion1, (x+20, y-60), cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 2, cv2.LINE_AA)
+                cv2.putText(frame, emotion2, (x+20, y-40), cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 2, cv2.LINE_AA)
+                cv2.putText(frame, emotion3, (x+20, y-20), cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 2, cv2.LINE_AA)
 
             #display the results of emotion recognition
             cv2.imshow('Video', cv2.resize(frame,(1600,960),interpolation = cv2.INTER_CUBIC))
