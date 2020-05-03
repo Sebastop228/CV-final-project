@@ -4,7 +4,9 @@ import pandas as pd
 import csv
 import os
 import argparse
+import datetime
 import cv2
+from cm import ConfusionMatrixLogger
 from model2 import Model
 from model import first_Model
 from preprocess import *
@@ -41,7 +43,25 @@ def parse_args():
     )
     return parser.parse_args()
 
-def train(augment, model, train_labels, train_images, validation_data):
+def train(augment, model, train_labels, train_images, validation_data, checkpoint_path):
+
+    log_dir = "logs/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1, update_freq='batch',
+            profile_batch=0)
+    cm_callback = ConfusionMatrixLogger(validation_data)
+
+    # Keras callbacks for training
+    callback_list = [
+        tf.keras.callbacks.ModelCheckpoint(
+            filepath=checkpoint_path + \
+                    "weights.e{epoch:02d}-" + \
+                    "acc{val_categorical_accuracy:.4f}.h5",
+            monitor='val_categorical_accuracy',
+            save_best_only=True,
+            save_weights_only=True),
+        tensorboard_callback,
+        cm_callback
+    ]
     
     """ Train the model on the training set of images """
 
@@ -60,7 +80,8 @@ def train(augment, model, train_labels, train_images, validation_data):
         model.fit(datagen.flow(train_images, train_labels, batch_size=model.batch_size),
                     steps_per_epoch=len(train_images) / model.batch_size, 
                     epochs=model.num_epochs,
-                    validation_data= validation_data)
+                    validation_data= validation_data,
+                    callbacks=callback_list)
     else:
 
         #amt_to_train = train_images.shape[0]
@@ -84,7 +105,8 @@ def train(augment, model, train_labels, train_images, validation_data):
         model.fit(train_images, train_labels, batch_size=model.batch_size,
                   steps_per_epoch=len(train_images) / model.batch_size, 
                   epochs=model.num_epochs,
-                  validation_data= validation_data)
+                  validation_data= validation_data,
+                  callbacks=callback_list)
 
 
 
@@ -115,6 +137,10 @@ def test(model, test_labels, test_images):
 
 def main():
     """ Run the program give command-line arguments """
+
+    checkpoint_path = "./checkpoints/"
+    if not os.path.exists(checkpoint_path):
+        os.makedirs(checkpoint_path)
 
     if ARGS.first_model:
         print("Using model 1!")
@@ -156,7 +182,7 @@ def main():
 
             validation_data = (test_images, test_labels)
 
-            train(augment, model, train_labels, train_images, validation_data)
+            train(augment, model, train_labels, train_images, validation_data, checkpoint_path)
 
             #results = model.evaluate(test_images, test_labels, batch_size=model.batch_size)
             test(model, test_labels, test_images)
@@ -180,7 +206,7 @@ def main():
             test_images = np.expand_dims(test_images, axis=3)
 
             validation_data = (test_images, test_labels)
-            train(augment, model, train_labels, train_images, validation_data)
+            train(augment, model, train_labels, train_images, validation_data, checkpoint_path)
 
             #results = model.evaluate(test_images, test_labels, batch_size=model.batch_size)
             test(model, test_labels, test_images)
