@@ -84,7 +84,6 @@ class ConfusionMatrixLogger(tf.keras.callbacks.Callback):
         test_true = []
         count = 0
         for i in self.validation_data:
-            print(np.ndim(i))
             test_pred.append(self.model.predict(i[0]))
             test_true.append(i[1])
             count += 1
