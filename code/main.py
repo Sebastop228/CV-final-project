@@ -58,11 +58,7 @@ def parse_args():
 
 def train(augment, model, train_labels, train_images, validation_data, checkpoint_path):
 
-    # Tensorboard and confusion matrix:
-    # log_folder = "./logs/"
-    # if os.path.exists(log_folder):
-    #     shutil.rmtree(log_folder)
-
+    # Tensorboard:
     curr_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     log_dir = "logs/" + curr_time
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1, update_freq='batch',
@@ -175,6 +171,7 @@ def main():
 
     model(tf.keras.Input(shape=(48, 48, 1)))
 
+    # Load weights indicated by --load-checkpoint flag
     if ARGS.load_checkpoint is not None:
         model.load_weights(ARGS.load_checkpoint)
 
