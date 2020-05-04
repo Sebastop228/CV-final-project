@@ -5,6 +5,7 @@ import csv
 import os
 import argparse
 import datetime
+import shutil
 import cv2
 from cm import ConfusionMatrixLogger
 from model2 import Model
@@ -16,11 +17,23 @@ def parse_args():
     """ Perform command-line argument parsing. """
 
     parser = argparse.ArgumentParser(
-        description="Let's train some neural nets!")
+        description="Let's train some neural nets!"
+    )
     parser.add_argument(
         '--load-checkpoint',
+        default=None,
+        help='''Pass this argument to load latest checkpoint'''
+    )
+    parser.add_argument(
+        '--confusion',
         action='store_true',
-        help='''1 to load checkpoint, 0 to train from scratch''')
+        help='''Path to model checkpoint file (should end with the
+        extension .h5). Checkpoints are automatically saved when you
+        train your model. If you want to continue training from where
+        you left off, this is how you would load your weights. In
+        the case of task 2, passing a checkpoint path will disable
+        the loading of VGG weights.'''
+    )
     parser.add_argument(
         '--live-feed',
         action = 'store_true',
@@ -45,10 +58,16 @@ def parse_args():
 
 def train(augment, model, train_labels, train_images, validation_data, checkpoint_path):
 
-    log_dir = "logs/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    # Tensorboard and confusion matrix:
+    # log_folder = "./logs/"
+    # if os.path.exists(log_folder):
+    #     shutil.rmtree(log_folder)
+
+    curr_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    log_dir = "logs/" + curr_time
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1, update_freq='batch',
             profile_batch=0)
-    cm_callback = ConfusionMatrixLogger(validation_data)
+
 
     # Keras callbacks for training
     callback_list = [
@@ -58,10 +77,15 @@ def train(augment, model, train_labels, train_images, validation_data, checkpoin
                     "acc{val_categorical_accuracy:.4f}.h5",
             monitor='val_categorical_accuracy',
             save_best_only=True,
-            save_weights_only=True),
-        tensorboard_callback,
-        cm_callback
+            save_weights_only=True,
+            period=5),
+        tensorboard_callback
     ]
+
+    # Include confusion logger in callbacks if flag set
+    if ARGS.confusion:
+        cm_dir = "logs/confusion_matrix_" + curr_time
+        callback_list.append(ConfusionMatrixLogger(validation_data, cm_dir))
     
     """ Train the model on the training set of images """
 
@@ -151,6 +175,9 @@ def main():
 
     model(tf.keras.Input(shape=(48, 48, 1)))
 
+    if ARGS.load_checkpoint is not None:
+        model.load_weights(ARGS.load_checkpoint)
+
     #if not running the live feed
     if not ARGS.live_feed:
         normalize = False
@@ -160,16 +187,6 @@ def main():
 
         train_images, train_labels, test_images, test_labels = get_data(normalize)
         # train_images, test_images, train_labels, test_labels = train_test_split(images, labels, test_size=0.2, random_state=42)
-        epoch = tf.Variable(0, trainable=False)
-        checkpoint = tf.train.Checkpoint(epoch=epoch, model=model)
-        manager = tf.train.CheckpointManager(checkpoint, './checkpoints', max_to_keep=3)
-
-        if ARGS.load_checkpoint:
-            checkpoint.restore(manager.latest_checkpoint)
-            if manager.latest_checkpoint:
-                print("Restored from {}".format(manager.latest_checkpoint))
-            else:
-                print("Initializing from scratch.")
 
         if ARGS.augment_data:
             augment = True
@@ -188,18 +205,6 @@ def main():
             test(model, test_labels, test_images)
         else:
 
-
-            #for i in range(epoch.numpy(), model.num_epochs, 1):
-                #print("Training for epoch ", i, "out of ", model.num_epochs)
-                #train(augment, model, train_labels, train_images, [])
-                #print("Testing for epoch ", i, "out of ", model.num_epochs)
-                #accuracy = test(normalize, model, test_labels, test_images)
-                #if i % 4 == 3:
-                    #epoch.assign(i + 1)
-                    #save_path = manager.save()
-                    #print("Saved checkpoint for epoch {}: {}".format(i, save_path))
-
-                #print("Epoch ", i, " accuracy is ", accuracy)
             model.compile(loss='categorical_crossentropy', metrics= ['categorical_accuracy'])
 
             test_labels = tf.keras.utils.to_categorical(test_labels, num_classes=7)

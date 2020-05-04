@@ -4,6 +4,7 @@ import sklearn.metrics
 import io
 import itertools
 import tensorflow as tf
+import datetime
 from tensorflow import keras
 
 def plot_to_image(figure):
@@ -23,10 +24,11 @@ class ConfusionMatrixLogger(tf.keras.callbacks.Callback):
     """ Keras callback for logging a confusion matrix for viewing
     in Tensorboard. """
 
-    def __init__(self, validation_data):
+    def __init__(self, validation_data, cm_dir):
         super(ConfusionMatrixLogger, self).__init__()
 
         self.validation_data = validation_data
+        self.cm_dir = cm_dir
 
     def on_epoch_end(self, epoch, logs=None):
         self.log_confusion_matrix(epoch, logs)
@@ -62,37 +64,19 @@ class ConfusionMatrixLogger(tf.keras.callbacks.Callback):
         return figure
 
     def log_confusion_matrix(self, epoch, logs):
-        # # Use the model to predict the values from the validation dataset.
-        # test_pred_raw = self.model.predict(self.test_images)
-        # test_pred = np.argmax(test_pred_raw, axis=1)
-
-        # # Calculate the confusion matrix.
-        # cm = sklearn.metrics.confusion_matrix(self.test_labels, test_pred)
-        # # Log the confusion matrix as an image summary.
-        # class_names = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
-        # figure = self.plot_confusion_matrix(cm, class_names=class_names)
-        # cm_image = plot_to_image(figure)
-
-        # # Log the confusion matrix as an image summary.
-        # file_writer_cm = tf.summary.create_file_writer('logs/confusion_matrix')
-        # with file_writer_cm.as_default():
-        #     tf.summary.image("Confusion Matrix", cm_image, step=epoch)
 
         """ Writes a confusion matrix plot to disk. """
 
         test_pred = []
         test_true = []
-        count = 0
-        for i in self.validation_data:
-            test_pred.append(self.model.predict(i[0]))
-            test_true.append(i[1])
-            count += 1
-            if count >= 1500 / self.model.batch_size:
-                break
+        
+        test_pred.append(self.model.predict(self.validation_data[0]))
+        test_true.append(self.validation_data[1])
 
         test_pred = np.array(test_pred)
         test_pred = np.argmax(test_pred, axis=-1).flatten()
-        test_true = np.array(test_true).flatten()
+        test_true = np.array(test_true)
+        test_true = np.argmax(test_true, axis=-1).flatten()
 
         # Source: https://www.tensorflow.org/tensorboard/image_summaries
         cm = sklearn.metrics.confusion_matrix(test_true, test_pred)
@@ -100,7 +84,7 @@ class ConfusionMatrixLogger(tf.keras.callbacks.Callback):
         figure = self.plot_confusion_matrix(cm, class_names=class_names)
         cm_image = plot_to_image(figure)
 
-        file_writer_cm = tf.summary.create_file_writer('logs/confusion_matrix')
+        file_writer_cm = tf.summary.create_file_writer(self.cm_dir)
 
         with file_writer_cm.as_default():
             tf.summary.image("Confusion Matrix (on validation set)", cm_image, step=epoch)
