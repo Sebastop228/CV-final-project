@@ -31,51 +31,9 @@ class Model(tf.keras.Model):
         self.initializer = tf.keras.initializers.TruncatedNormal(stddev=self.stddev)
 
         self.architecture = tf.keras.Sequential()
-        
-        ################################## ARCHITECTURE BLOCK 1 #######################################################
-        #Could not get to work due to only returning one-hots. Paper says 65% accuracy
-        
-        # self.architecture = [
 
-        #     # "https://github.com/jrishabh96/Facial-Expression-Recognition/blob/master/cnn_major.py""
-
-
-        #     tf.keras.layers.Conv2D(64, (3,3), padding = 'same'),
-        #     tf.keras.layers.BatchNormalization(),
-        #     tf.keras.layers.Activation('relu'),
-        #     tf.keras.layers.MaxPool2D(pool_size = (2,2)),
-        #     tf.keras.layers.Dropout(0.25),
-
-        #     tf.keras.layers.Conv2D(128, (5,5), padding = 'same'),
-        #     tf.keras.layers.BatchNormalization(),
-        #     tf.keras.layers.Activation('relu'),
-        #     tf.keras.layers.MaxPool2D(pool_size = (2,2)),
-        #     tf.keras.layers.Dropout(0.25),
-
-        #     tf.keras.layers.Conv2D(512, (3,3), padding = 'same'),
-        #     tf.keras.layers.BatchNormalization(),
-        #     tf.keras.layers.Activation('relu'),
-        #     tf.keras.layers.MaxPool2D(pool_size = (2,2)),
-        #     tf.keras.layers.Dropout(0.25),
-
-        #     tf.keras.layers.Conv2D(512, (3,3), padding = 'same'),
-        #     tf.keras.layers.BatchNormalization(),
-        #     tf.keras.layers.Activation('relu'),
-        #     tf.keras.layers.MaxPool2D(pool_size = (2,2)),
-        #     tf.keras.layers.Dropout(0.25),
-
-        #     tf.keras.layers.Flatten(),
-
-        #     tf.keras.layers.Dense(512, activation = "relu", kernel_regularizer = tf.keras.regularizers.l2(0.001)),
-        #     tf.keras.layers.BatchNormalization(),
-        #     # tf.keras.layers.Activation('relu'),
-        #     tf.keras.layers.Dropout(0.25),
-
-        #     tf.keras.layers.Dense(7, activation = 'sigmoid') #potentially try softmax?
-
-        # ]
-        ################################## ARCHITECTURE BLOCK 1 #######################################################
-
+        #We tried three different architectures, the only one that was somewhat
+        #successful was the one below (modified from the version in the paper)
 
         ################################## ARCHITECTURE BLOCK 2 #######################################################
         #From https://medium.com/themlblog/how-to-do-facial-emotion-recognition-using-a-cnn-b7bbae79cd8f
@@ -124,63 +82,6 @@ class Model(tf.keras.Model):
 
 
         ################################## ARCHITECTURE BLOCK 2 #######################################################
-
-
-        ################################## ARCHITECTURE BLOCK 3 #######################################################
-        # From http://cs231n.stanford.edu/reports/2016/pdfs/005_Report.pdf
-        # Possibly interesting resource? https://arxiv.org/pdf/1612.02903.pdf
-
-    
-        # self.architecture.append(tf.keras.layers.Conv2D(filters = 64, kernel_size = 3, strides = (1,1), activation = "relu"))
-        # #figure out parameters for batch normalization (I think this is what they mean by
-        # # batch normalization)
-        # self.architecture.append(tf.keras.layers.BatchNormalization())
-        # #figure out dropout rate
-        # self.architecture.append(tf.keras.layers.Dropout(rate = 0.25))
-        # self.architecture.append(tf.keras.layers.MaxPool2D(pool_size=(2, 2)))
-        
-        # self.architecture.append(tf.keras.layers.Conv2D(filters = 128, kernel_size = 5, strides = (1,1), activation = "relu"))
-        # #figure out parameters for batch normalization
-        # self.architecture.append(tf.keras.layers.BatchNormalization())
-        # #figure out dropout rate
-        # self.architecture.append(tf.keras.layers.Dropout(rate = 0.25))
-        # self.architecture.append(tf.keras.layers.MaxPool2D(pool_size=(2, 2)))
-
-        # self.architecture.append(tf.keras.layers.Conv2D(filters = 512, kernel_size = 3, strides = (1,1), activation = "relu"))
-        # #figure out parameters for batch normalization
-        # self.architecture.append(tf.keras.layers.BatchNormalization())
-        # #figure out dropout rate
-        # self.architecture.append(tf.keras.layers.Dropout(rate = 0.25))
-        # self.architecture.append(tf.keras.layers.MaxPool2D(pool_size=(2, 2)))
-
-        # self.architecture.append(tf.keras.layers.Conv2D(filters = 512, kernel_size = 3, strides = (1,1), activation = "relu"))
-        # #figure out parameters for batch normalization
-        # self.architecture.append(tf.keras.layers.BatchNormalization())
-        # #figure out dropout rate
-        # self.architecture.append(tf.keras.layers.Dropout(rate = 0.25))
-        # self.architecture.append(tf.keras.layers.MaxPool2D(pool_size=(2, 2)))
-
-        # self.architecture.append(tf.keras.layers.Flatten())
-
-        # self.architecture.append(tf.keras.layers.Dense(256, activation='relu'))
-        # #figure out parameters for batch normalization
-        # self.architecture.append(tf.keras.layers.BatchNormalization())
-        # #figure out dropout rate
-        # self.architecture.append(tf.keras.layers.Dropout(rate = 0.25))
-
-        # self.architecture.append(tf.keras.layers.Flatten())
-
-        # self.architecture.append(tf.keras.layers.Dense(512, activation='relu'))
-        # #figure out parameters for batch normalization
-        # self.architecture.append(tf.keras.layers.BatchNormalization())
-        # #figure out dropout rate
-        # self.architecture.append(tf.keras.layers.Dropout(rate = 0.25))
-
-        # self.architecture.append(tf.keras.layers.Flatten())
-
-        # self.architecture.append(tf.keras.layers.Dense(7, activation = "softmax"))
-
-        ################################## ARCHITECTURE BLOCK 3 #######################################################
 
     def call(self, inputs):
 
