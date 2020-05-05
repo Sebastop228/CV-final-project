@@ -138,3 +138,13 @@ def pre_process_fn(img):
     standardize(img)
 
     return img
+
+def normalize_test(test_images):
+    test_mean = np.mean(test_images / 255., axis=(0,1,2))
+    test_std = np.std(test_images / 255., axis=(0,1,2))
+
+    for img in test_images:
+        img /= 255.
+        img = (img - test_mean) / test_std
+    
+    return test_images
