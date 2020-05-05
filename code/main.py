@@ -58,6 +58,8 @@ def parse_args():
 
 def train(augment, model, train_labels, train_images, validation_data, checkpoint_path):
 
+    """ Train the model on the training set of images """
+
     # Tensorboard:
     curr_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     log_dir = "logs/" + curr_time
@@ -82,8 +84,6 @@ def train(augment, model, train_labels, train_images, validation_data, checkpoin
     if ARGS.confusion:
         cm_dir = "logs/confusion_matrix_" + curr_time
         callback_list.append(ConfusionMatrixLogger(validation_data, cm_dir))
-    
-    """ Train the model on the training set of images """
 
     #if one of the command lines includes data augmentation
     if augment:
@@ -103,22 +103,6 @@ def train(augment, model, train_labels, train_images, validation_data, checkpoin
                     validation_data= validation_data,
                     callbacks=callback_list)
     else:
-
-        #amt_to_train = train_images.shape[0]
-        #batch_size = model.batch_size 
-
-        #for i in range(0, amt_to_train, batch_size):
-            # indexed into the arrays so that, for the last batch, i+batch_size doesn't go over the size of the array
-            #batch_images = train_images[i:min(i+batch_size, amt_to_train)]
-            #batch_labels = train_labels[i:min(i+batch_size, amt_to_train)]
-            #with tf.GradientTape() as tape:
-                #batch_images = np.expand_dims(batch_images, axis=3) # NOT NECESSARY FOR MODEL 2
-                #probs = model.call(batch_images)
-                #batch_labels = tf.keras.utils.to_categorical(batch_labels, num_classes=7)
-                #loss = model.loss_fn(batch_labels, probs)
-            #gradients = tape.gradient(loss, model.trainable_variables)
-            #model.optimizer.apply_gradients(zip(gradients, model.trainable_variables))
-
         train_images = np.expand_dims(train_images, axis=3)
         train_labels = tf.keras.utils.to_categorical(train_labels, num_classes=7)
 
@@ -133,24 +117,6 @@ def train(augment, model, train_labels, train_images, validation_data, checkpoin
 def test(model, test_labels, test_images):
     
     """" Test the trained model on a set of test images """
-    #if normalize:
-        #test_images /= 255.
-        #mean = np.mean(test_images, axis=(0,1,2))
-        #stdev = np.std(test_images, axis=(0,1,2))
-
-        #test_images = (test_images - mean) / stdev
-    
-    #amt_to_test = test_images.shape[0]
-    #batch_size = model.batch_size
-    #amt_correct = 0
-    #for i in range(0, amt_to_test, batch_size):
-        #batch_images = test_images[i:min(i+batch_size, amt_to_test)]
-        #batch_labels = test_labels[i:min(i+batch_size, amt_to_test)]
-        #batch_images = np.expand_dims(batch_images, axis=3) # NOT NECESSARY FOR MODEL 2
-        #probs = model.call(batch_images)
-        #batch_labels = tf.keras.utils.to_categorical(batch_labels, num_classes=7)
-        #amt_correct += model.accuracy_fn(batch_labels, probs)
-    #return amt_correct/amt_to_test
 
     model.evaluate(test_images, test_labels, batch_size=model.batch_size)
 
