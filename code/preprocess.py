@@ -57,8 +57,10 @@ def get_data(normalize):
 
     # Performing data normalization
     if normalize:
-        for i in range(len(train_images)):
-            train_images[i] = pre_process_fn(train_images[i])
+        for img in train_images:
+            img = pre_process_fn(img)
+
+        test_images = normalize_test(test_images)
 
     print("PREPROCESSING DONE!")
     return train_images, train_labels, test_images, test_labels
