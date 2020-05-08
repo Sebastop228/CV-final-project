@@ -164,7 +164,6 @@ def main():
 
             train(augment, model, train_labels, train_images, validation_data, checkpoint_path)
 
-            #results = model.evaluate(test_images, test_labels, batch_size=model.batch_size)
             test(model, test_labels, test_images)
         else:
 
@@ -176,7 +175,6 @@ def main():
             validation_data = (test_images, test_labels)
             train(augment, model, train_labels, train_images, validation_data, checkpoint_path)
 
-            #results = model.evaluate(test_images, test_labels, batch_size=model.batch_size)
             test(model, test_labels, test_images)
             
         model.save_weights('model.h5')
