@@ -91,9 +91,6 @@ def train(augment, model, train_labels, train_images, validation_data, checkpoin
         datagen = tf.keras.preprocessing.image.ImageDataGenerator(
                     preprocessing_function = pre_process_fn,
                     rotation_range=20,
-                    #width_shift_range=0.2,
-                    #height_shift_range=0.2,
-                    #horizontal_flip=True
                     )
         train_labels = tf.keras.utils.to_categorical(train_labels, num_classes=7)
         

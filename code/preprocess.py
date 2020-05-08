@@ -14,7 +14,8 @@ def get_data(normalize):
     global mean
     global stdev
     print("PREPROCESSING...")
-    data_dir = '../../../../data/' # Change this so it refers to where you have the data
+    # Change this so it refers to where you have the data
+    data_dir = '../../../../data/' 
 
     main_dir = os.path.abspath(__file__)
 
@@ -87,6 +88,9 @@ def pre_process_fn(img):
     return img
 
 def normalize_test(test_images):
+
+    """ A method to normalize the test data """
+    
     test_mean = np.mean(test_images / 255., axis=(0,1,2))
     test_std = np.std(test_images / 255., axis=(0,1,2))
 
