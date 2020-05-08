@@ -97,7 +97,7 @@ def train(augment, model, train_labels, train_images, validation_data, checkpoin
                     )
         train_labels = tf.keras.utils.to_categorical(train_labels, num_classes=7)
         
-        model.fit(datagen.flow(train_images, train_labels, batch_size=model.batch_size),
+        model.fit(datagen.flow(train_images, train_labels, batch_size=model.batch_size, shuffle=False),
                     steps_per_epoch=len(train_images) / model.batch_size, 
                     epochs=model.num_epochs,
                     validation_data= validation_data,
