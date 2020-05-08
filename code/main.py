@@ -149,7 +149,6 @@ def main():
             normalize = True
 
         train_images, train_labels, test_images, test_labels = get_data(normalize)
-        # train_images, test_images, train_labels, test_labels = train_test_split(images, labels, test_size=0.2, random_state=42)
 
         if ARGS.augment_data:
             augment = True
