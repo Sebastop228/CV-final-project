@@ -39,7 +39,7 @@ class Model(tf.keras.Model):
         #From https://medium.com/themlblog/how-to-do-facial-emotion-recognition-using-a-cnn-b7bbae79cd8f
         #Github Repo: https://github.com/gitshanks/fer2013
 
-        # Says accuracy of 66%; was able to obtain 62%
+        # Says accuracy of 66%; was able to obtain 65%
 
 
         self.architecture.add(tf.keras.layers.Conv2D(64, kernel_size=(3, 3), activation='relu', kernel_regularizer=tf.keras.regularizers.l2(0.01)))
