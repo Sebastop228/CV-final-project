@@ -88,22 +88,3 @@ class Model(tf.keras.Model):
         """ A method to return the architecture """
 
         return self.architecture(inputs)
-
-
-
-    def loss_fn(self, labels, predictions):
-
-        """ A loss function for the model """
-
-        return tf.keras.losses.categorical_crossentropy(labels, predictions, from_logits = False) #Binary crossentropy referenced by some papers
-
-
-    def accuracy_fn(self, labels, probs):
-
-        """ A method to compute accuracy """
-
-        highest_prediction_index = np.argmax(probs, axis = 1)
-        highest_label_index = np.argmax(labels, axis=1)
-        amt_correct = np.count_nonzero(highest_label_index == highest_prediction_index)
-        
-        return amt_correct
