@@ -67,22 +67,3 @@ class first_Model(tf.keras.Model):
             inputs = layer(inputs)
 
         return inputs
-
-
-
-    def loss_fn(self, labels, predictions):
-
-        """ Compute the loss for this model """
-
-        return tf.keras.losses.categorical_crossentropy(labels, predictions, from_logits = False)
-
-
-    def accuracy_fn(self, labels, probs):
-
-        """Compute the accuracy for this model """
-        
-        highest_prediction_index = np.argmax(probs, axis = 1)
-        highest_label_index = np.argmax(labels, axis=1)
-        amt_correct = np.count_nonzero(highest_label_index == highest_prediction_index)
-        
-        return amt_correct

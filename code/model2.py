@@ -39,7 +39,7 @@ class Model(tf.keras.Model):
         #From https://medium.com/themlblog/how-to-do-facial-emotion-recognition-using-a-cnn-b7bbae79cd8f
         #Github Repo: https://github.com/gitshanks/fer2013
 
-        # Says accuracy of 66%; was able to obtain 62%
+        # Says accuracy of 66%; was able to obtain 65%
 
 
         self.architecture.add(tf.keras.layers.Conv2D(64, kernel_size=(3, 3), activation='relu', kernel_regularizer=tf.keras.regularizers.l2(0.01)))
@@ -88,22 +88,3 @@ class Model(tf.keras.Model):
         """ A method to return the architecture """
 
         return self.architecture(inputs)
-
-
-
-    def loss_fn(self, labels, predictions):
-
-        """ A loss function for the model """
-
-        return tf.keras.losses.categorical_crossentropy(labels, predictions, from_logits = False) #Binary crossentropy referenced by some papers
-
-
-    def accuracy_fn(self, labels, probs):
-
-        """ A method to compute accuracy """
-
-        highest_prediction_index = np.argmax(probs, axis = 1)
-        highest_label_index = np.argmax(labels, axis=1)
-        amt_correct = np.count_nonzero(highest_label_index == highest_prediction_index)
-        
-        return amt_correct

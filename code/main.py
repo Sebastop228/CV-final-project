@@ -149,7 +149,6 @@ def main():
             normalize = True
 
         train_images, train_labels, test_images, test_labels = get_data(normalize)
-        # train_images, test_images, train_labels, test_labels = train_test_split(images, labels, test_size=0.2, random_state=42)
 
         if ARGS.augment_data:
             augment = True
@@ -164,7 +163,6 @@ def main():
 
             train(augment, model, train_labels, train_images, validation_data, checkpoint_path)
 
-            #results = model.evaluate(test_images, test_labels, batch_size=model.batch_size)
             test(model, test_labels, test_images)
         else:
 
@@ -176,7 +174,6 @@ def main():
             validation_data = (test_images, test_labels)
             train(augment, model, train_labels, train_images, validation_data, checkpoint_path)
 
-            #results = model.evaluate(test_images, test_labels, batch_size=model.batch_size)
             test(model, test_labels, test_images)
             
         model.save_weights('model.h5')
