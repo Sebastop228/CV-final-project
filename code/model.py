@@ -30,9 +30,6 @@ class first_Model(tf.keras.Model):
         #################### HYPERPARAMETERS #############
 
         self.optimizer = tf.keras.optimizers.Adam(learning_rate = self.learning_rate, decay = self.decay)
-        
-        #original code in the github repo does not use an initializer
-        self.initializer = tf.keras.initializers.TruncatedNormal(stddev=self.stddev)
 
         self.architecture = []
 
