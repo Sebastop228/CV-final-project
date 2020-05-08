@@ -64,7 +64,7 @@ def train(augment, model, train_labels, train_images, validation_data, checkpoin
 
     # Tensorboard:
     curr_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    log_dir = "logs/" + curr_time
+    log_dir = "logs/" + curr_time #For windows: log_dir = "logs\\" + curr_time
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1, update_freq='batch',
             profile_batch=0)
 
@@ -84,7 +84,7 @@ def train(augment, model, train_labels, train_images, validation_data, checkpoin
 
     # Include confusion logger in callbacks if flag set
     if ARGS.confusion:
-        cm_dir = "logs/confusion_matrix_" + curr_time
+        cm_dir = "logs/confusion_matrix_" + curr_time #For windows: cm_dir = "logs\\confusion_matrix_" + curr_time
         callback_list.append(ConfusionMatrixLogger(validation_data, cm_dir))
 
     #if one of the command lines includes data augmentation
