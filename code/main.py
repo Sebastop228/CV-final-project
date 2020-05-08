@@ -22,17 +22,19 @@ def parse_args():
     parser.add_argument(
         '--load-checkpoint',
         default=None,
-        help='''Pass this argument to load latest checkpoint'''
-    )
-    parser.add_argument(
-        '--confusion',
-        action='store_true',
         help='''Path to model checkpoint file (should end with the
         extension .h5). Checkpoints are automatically saved when you
         train your model. If you want to continue training from where
         you left off, this is how you would load your weights. In
         the case of task 2, passing a checkpoint path will disable
         the loading of VGG weights.'''
+    )
+    parser.add_argument(
+        '--confusion',
+        action='store_true',
+        help='''Log a confusion matrix at the end of each
+        epoch (viewable in Tensorboard). This is turned off
+        by default as it takes a little bit of time to complete.'''
     )
     parser.add_argument(
         '--live-feed',
