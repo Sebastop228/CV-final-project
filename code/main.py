@@ -184,7 +184,7 @@ def main():
         #and https://realpython.com/face-detection-in-python-using-a-webcam/
         model.load_weights('model.h5')
 
-        model.compile(model.optimizer, loss = model.loss_fn)
+        model.compile(model.optimizer, loss = 'binary_crossentropy')
 
         # prevents openCL usage and unnecessary logging messages
         cv2.ocl.setUseOpenCL(False)
